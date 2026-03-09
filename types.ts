@@ -14,6 +14,7 @@ export type Villager = {
   species: string;
   birthday: string;
   friendship: number;
+  portrait: string;
 };
 
 export type DailyTask = {

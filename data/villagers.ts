@@ -8,6 +8,7 @@ export const villagers: Villager[] = [
     species: "Squirrel",
     birthday: "September 29",
     friendship: 60,
+    portrait: "/villagers/marshal.png",
   },
   {
     id: 2,
@@ -16,6 +17,7 @@ export const villagers: Villager[] = [
     species: "Cub",
     birthday: "June 15",
     friendship: 40,
+    portrait: "/villagers/maple.png",
   },
   {
     id: 3,
@@ -24,6 +26,7 @@ export const villagers: Villager[] = [
     species: "Penguin",
     birthday: "January 5",
     friendship: 25,
+    portrait: "/villagers/roald.png",
   },
   {
     id: 4,
@@ -32,5 +35,6 @@ export const villagers: Villager[] = [
     species: "Deer",
     birthday: "October 31",
     friendship: 50,
+    portrait: "/villagers/shino.png",
   },
 ];
