@@ -11,11 +11,24 @@ import {
 
 export default function FriendshipPage() {
   const [villagers, setVillagers] = useState(initialVillagers);
+  const [talked, setTalked] = useState<number[]>([]);
+  const [gifted, setGifted] = useState<number[]>([]);
 
   useEffect(() => {
     const savedVillagers = localStorage.getItem("villagerFriendships");
+    const savedTalked = localStorage.getItem("talkedVillagers");
+    const savedGifted = localStorage.getItem("giftedVillagers");
+
     if (savedVillagers) {
       setVillagers(JSON.parse(savedVillagers));
+    }
+
+    if (savedTalked) {
+      setTalked(JSON.parse(savedTalked));
+    }
+
+    if (savedGifted) {
+      setGifted(JSON.parse(savedGifted));
     }
   }, []);
 
@@ -23,7 +36,19 @@ export default function FriendshipPage() {
     localStorage.setItem("villagerFriendships", JSON.stringify(villagers));
   }, [villagers]);
 
+  useEffect(() => {
+    localStorage.setItem("talkedVillagers", JSON.stringify(talked));
+  }, [talked]);
+
+  useEffect(() => {
+    localStorage.setItem("giftedVillagers", JSON.stringify(gifted));
+  }, [gifted]);
+
   function talkToVillager(id: number) {
+    if (talked.includes(id)) return;
+
+    setTalked((prev) => [...prev, id]);
+
     setVillagers((prev) =>
       prev.map((v) =>
         v.id === id ? { ...v, friendship: v.friendship + 1 } : v
@@ -32,6 +57,10 @@ export default function FriendshipPage() {
   }
 
   function giftVillager(id: number) {
+    if (gifted.includes(id)) return;
+
+    setGifted((prev) => [...prev, id]);
+
     setVillagers((prev) =>
       prev.map((v) =>
         v.id === id ? { ...v, friendship: v.friendship + 3 } : v
@@ -71,15 +100,14 @@ export default function FriendshipPage() {
                 flexShrink: 0,
               }}
             >
-              <Image
+              <img
                 src={v.portrait}
                 alt={v.name}
-                width={110}
-                height={110}
                 style={{
-                  width: "100%",
-                  height: "100%",
+                  width: "110px",
+                  height: "110px",
                   objectFit: "cover",
+                  borderRadius: "16px",
                 }}
               />
             </div>
@@ -108,11 +136,11 @@ export default function FriendshipPage() {
 
               <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
                 <button onClick={() => talkToVillager(v.id)}>
-                  Talk Today
+                  {talked.includes(v.id) ? "Talked ✓" : "Talk Today"}
                 </button>
 
                 <button onClick={() => giftVillager(v.id)}>
-                  Gift Today
+                  {gifted.includes(v.id) ? "Gifted ✓" : "Gift Today"}
                 </button>
               </div>
             </div>
