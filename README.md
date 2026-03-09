@@ -2,6 +2,9 @@
 
 A web companion app for **Animal Crossing: New Horizons**.
 
+Description
+ACNH Companion App built with Next.js. Track villager friendship, critter availability, daily tasks and more.
+
 ## Features
 - Villager friendship tracker
 - Daily task tracker
