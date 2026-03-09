@@ -1,19 +1,34 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import FriendshipBar from "../../components/FriendshipBar"
-import { villagers as initialVillagers } from "../../data/villagers"
-import { getFriendshipLevel, hasPhotoChance } from "../../helpers/friendshipLevel"
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import FriendshipBar from "../../components/FriendshipBar";
+import { villagers as initialVillagers } from "../../data/villagers";
+import {
+  getFriendshipLevel,
+  hasPhotoChance,
+} from "../../helpers/friendshipLevel";
 
 export default function FriendshipPage() {
-  const [villagers, setVillagers] = useState(initialVillagers)
+  const [villagers, setVillagers] = useState(initialVillagers);
+
+  useEffect(() => {
+    const savedVillagers = localStorage.getItem("villagerFriendships");
+    if (savedVillagers) {
+      setVillagers(JSON.parse(savedVillagers));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("villagerFriendships", JSON.stringify(villagers));
+  }, [villagers]);
 
   function talkToVillager(id: number) {
     setVillagers((prev) =>
       prev.map((v) =>
         v.id === id ? { ...v, friendship: v.friendship + 1 } : v
       )
-    )
+    );
   }
 
   function giftVillager(id: number) {
@@ -21,11 +36,11 @@ export default function FriendshipPage() {
       prev.map((v) =>
         v.id === id ? { ...v, friendship: v.friendship + 3 } : v
       )
-    )
+    );
   }
 
   return (
-    <main style={{ padding: "40px" }}>
+    <main style={{ padding: "40px", fontFamily: "sans-serif" }}>
       <h1 style={{ fontSize: "2.4rem", marginBottom: "30px" }}>
         Villager Friendship Tracker
       </h1>
@@ -40,44 +55,70 @@ export default function FriendshipPage() {
               background: "var(--card)",
               padding: "20px",
               boxShadow: "var(--shadow)",
+              display: "flex",
+              gap: "20px",
+              alignItems: "flex-start",
             }}
           >
-            <h2 style={{ margin: 0 }}>{v.name}</h2>
-
-            <p style={{ color: "var(--muted)", marginTop: "4px" }}>
-              {v.personality} • {v.species}
-            </p>
-
-            <p>Birthday: {v.birthday}</p>
-
-            <div style={{ fontWeight: 600 }}>
-              Friendship: {v.friendship}
+            <div
+              style={{
+                width: "110px",
+                height: "110px",
+                borderRadius: "20px",
+                overflow: "hidden",
+                border: "1px solid var(--card-border)",
+                background: "#fff",
+                flexShrink: 0,
+              }}
+            >
+              <Image
+                src={v.portrait}
+                alt={v.name}
+                width={110}
+                height={110}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
             </div>
 
-            {/* NEW LEAF PROGRESS BAR */}
-            <FriendshipBar points={v.friendship} max={100} />
+            <div style={{ flex: 1 }}>
+              <h2 style={{ marginTop: 0, marginBottom: "8px" }}>{v.name}</h2>
 
-            <p>
-              Level: {getFriendshipLevel(v.friendship)}
-            </p>
+              <p style={{ marginTop: 0, color: "var(--muted)" }}>
+                {v.personality} • {v.species}
+              </p>
 
-            <p>
-              Photo Chance:{" "}
-              {hasPhotoChance(v.friendship) ? "Possible ✓" : "Not yet"}
-            </p>
+              <p>Birthday: {v.birthday}</p>
 
-            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-              <button onClick={() => talkToVillager(v.id)}>
-                Talk Today
-              </button>
+              <div style={{ marginBottom: "8px", fontWeight: 600 }}>
+                Friendship: {v.friendship}
+              </div>
 
-              <button onClick={() => giftVillager(v.id)}>
-                Gift Today
-              </button>
+              <FriendshipBar points={v.friendship} max={100} />
+
+              <p>Level: {getFriendshipLevel(v.friendship)}</p>
+
+              <p>
+                Photo Chance:{" "}
+                {hasPhotoChance(v.friendship) ? "Possible ✓" : "Not yet"}
+              </p>
+
+              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                <button onClick={() => talkToVillager(v.id)}>
+                  Talk Today
+                </button>
+
+                <button onClick={() => giftVillager(v.id)}>
+                  Gift Today
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
     </main>
-  )
+  );
 }
