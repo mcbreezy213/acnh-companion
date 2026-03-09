@@ -29,25 +29,28 @@ export default function RootLayout({
      <body
   className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 >
-
-  <nav
-    style={{
-      padding: "20px",
-      borderBottom: "1px solid #ccc",
-      marginBottom: "20px",
-      fontFamily: "sans-serif",
-    }}
-  >
-    <Link href="/" style={{ marginRight: "15px" }}>Dashboard</Link>
-    <Link href="/friendship" style={{ marginRight: "15px" }}>Friendship</Link>
-    <Link href="/daily" style={{ marginRight: "15px" }}>Daily</Link>
-    <Link href="/critters" style={{ marginRight: "15px" }}>Critters</Link>
-    <Link href="/inventory" style={{ marginRight: "15px" }}>Inventory</Link>
-    <Link href="/turnips" style={{ marginRight: "15px" }}>Turnips</Link>
-    <Link href="/backup" style={{ marginRight: "15px" }}>Backup</Link>
-    <Link href="/settings">Settings</Link>
-    
-  </nav>
+<nav
+  style={{
+    padding: "18px 24px",
+    borderBottom: "1px solid var(--card-border)",
+    marginBottom: "24px",
+    background: "var(--nav-bg)",
+    display: "flex",
+    gap: "14px",
+    flexWrap: "wrap",
+    alignItems: "center",
+    boxShadow: "var(--shadow)",
+  }}
+>
+  <Link href="/">Dashboard</Link>
+  <Link href="/friendship">Friendship</Link>
+  <Link href="/daily">Daily</Link>
+  <Link href="/critters">Critters</Link>
+  <Link href="/inventory">Inventory</Link>
+  <Link href="/turnips">Turnips</Link>
+  <Link href="/backup">Backup</Link>
+  <Link href="/settings">Settings</Link>
+</nav>
 <SettingsProvider>
   {children}
 </SettingsProvider>
