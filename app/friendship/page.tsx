@@ -128,20 +128,22 @@ export default function FriendshipPage() {
       <div style={{ display: "grid", gap: "20px" }}>
         {sortedVillagers.map((v) => (
           <div
-            key={v.id}
-            style={{
-              border: "1px solid var(--card-border)",
-              borderRadius: "20px",
-              background: "var(--card)",
-              padding: "20px",
-              boxShadow: "var(--shadow)",
-              display: "flex",
-              gap: "20px",
-              alignItems: "flex-start",
-              opacity:
-                talked.includes(v.id) && gifted.includes(v.id) ? 0.75 : 1,
-            }}
-          >
+  key={v.id}
+  style={{
+    border: "1px solid var(--card-border)",
+    borderRadius: "20px",
+    background: "var(--card)",
+    padding: "20px",
+    boxShadow:
+      !talked.includes(v.id) || !gifted.includes(v.id)
+        ? "0 0 12px rgba(140, 200, 120, 0.6)"
+        : "var(--shadow)",
+    display: "flex",
+    gap: "20px",
+    alignItems: "flex-start",
+    opacity: talked.includes(v.id) && gifted.includes(v.id) ? 0.75 : 1,
+  }}
+>
             <img
               src={v.portrait}
               alt={v.name}
