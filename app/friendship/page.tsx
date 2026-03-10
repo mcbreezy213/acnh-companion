@@ -7,6 +7,7 @@ import {
   getFriendshipLevel,
   hasPhotoChance,
 } from "../../helpers/friendshipLevel";
+import { sortVillagersByPriority } from "../../helpers/sortVillagersByPriority";
 
 export default function FriendshipPage() {
   const [villagers, setVillagers] = useState(initialVillagers);
@@ -63,23 +64,7 @@ export default function FriendshipPage() {
     );
   }
 
-  const sortedVillagers = [...villagers].sort((a, b) => {
-    const aNeedsTalk = !talked.includes(a.id);
-    const bNeedsTalk = !talked.includes(b.id);
-
-    const aNeedsGift = !gifted.includes(a.id);
-    const bNeedsGift = !gifted.includes(b.id);
-
-    if (aNeedsTalk !== bNeedsTalk) {
-      return aNeedsTalk ? -1 : 1;
-    }
-
-    if (aNeedsGift !== bNeedsGift) {
-      return aNeedsGift ? -1 : 1;
-    }
-
-    return a.friendship - b.friendship;
-  });
+  const sortedVillagers = sortVillagersByPriority(villagers, talked, gifted);
 
   return (
     <main style={{ padding: "40px", fontFamily: "sans-serif" }}>

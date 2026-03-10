@@ -1,4 +1,4 @@
-import { Villager } from "../types";
+import type { Villager } from "../types";
 
 export function sortVillagersByPriority(
   villagers: Villager[],
@@ -7,22 +7,23 @@ export function sortVillagersByPriority(
 ) {
   return [...villagers].sort((a, b) => {
     const aTalked = talked.includes(a.id);
-    const bTalked = talked.includes(b.id);
-
     const aGifted = gifted.includes(a.id);
+
+    const bTalked = talked.includes(b.id);
     const bGifted = gifted.includes(b.id);
 
-    // Priority 1: villagers not talked to today
-    if (aTalked !== bTalked) {
-      return aTalked ? 1 : -1;
-    }
+    const priority = (t: boolean, g: boolean) => {
+      if (!t && !g) return 0;
+      if (!t && g) return 1;
+      if (t && !g) return 2;
+      return 3;
+    };
 
-    // Priority 2: villagers not gifted today
-    if (aGifted !== bGifted) {
-      return aGifted ? 1 : -1;
-    }
+    const pa = priority(aTalked, aGifted);
+    const pb = priority(bTalked, bGifted);
 
-    // Priority 3: lowest friendship first
+    if (pa !== pb) return pa - pb;
+
     return a.friendship - b.friendship;
   });
 }
