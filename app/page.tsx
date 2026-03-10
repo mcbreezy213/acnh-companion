@@ -10,20 +10,40 @@ import { getAvailableNow } from "../helpers/critterFilters";
 
 export default function Home() {
   const { settings } = useSettings();
-
+  const [villagersState, setVillagers] = useState(villagers);
   const [talked, setTalked] = useState<number[]>([]);
   const [gifted, setGifted] = useState<number[]>([]);
   const [completedTasks, setCompletedTasks] = useState<number[]>([]);
 
   useEffect(() => {
-    const savedTalked = localStorage.getItem("talkedVillagers");
-    const savedGifted = localStorage.getItem("giftedVillagers");
-    const savedTasks = localStorage.getItem("completedDailyTasks");
+  const savedVillagers = localStorage.getItem("villagerFriendships");
+  const savedTalked = localStorage.getItem("talkedVillagers");
+  const savedGifted = localStorage.getItem("giftedVillagers");
 
-    if (savedTalked) setTalked(JSON.parse(savedTalked));
-    if (savedGifted) setGifted(JSON.parse(savedGifted));
-    if (savedTasks) setCompletedTasks(JSON.parse(savedTasks));
-  }, []);
+  if (savedVillagers) {
+    try {
+      setVillagers(JSON.parse(savedVillagers));
+    } catch {
+      localStorage.removeItem("villagerFriendships");
+    }
+  }
+
+  if (savedTalked) {
+    try {
+      setTalked(JSON.parse(savedTalked));
+    } catch {
+      localStorage.removeItem("talkedVillagers");
+    }
+  }
+
+  if (savedGifted) {
+    try {
+      setGifted(JSON.parse(savedGifted));
+    } catch {
+      localStorage.removeItem("giftedVillagers");
+    }
+  }
+}, []);
 
   const currentMonth = new Date().getMonth() + 1;
   const currentHour = new Date().getHours();

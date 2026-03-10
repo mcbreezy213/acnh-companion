@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSettings } from "../../context/SettingsContext";
+import { villagers } from "../../data/villagers";
 import FriendshipBar from "../../components/FriendshipBar";
-import { villagers as initialVillagers } from "../../data/villagers";
 import {
   getFriendshipLevel,
   hasPhotoChance,
@@ -10,7 +11,9 @@ import {
 import { sortVillagersByPriority } from "../../helpers/sortVillagersByPriority";
 
 export default function FriendshipPage() {
-  const [villagers, setVillagers] = useState(initialVillagers);
+  const { settings } = useSettings();
+
+  const [villagersState, setVillagers] = useState(villagers);
   const [talked, setTalked] = useState<number[]>([]);
   const [gifted, setGifted] = useState<number[]>([]);
 
@@ -19,14 +22,34 @@ export default function FriendshipPage() {
     const savedTalked = localStorage.getItem("talkedVillagers");
     const savedGifted = localStorage.getItem("giftedVillagers");
 
-    if (savedVillagers) setVillagers(JSON.parse(savedVillagers));
-    if (savedTalked) setTalked(JSON.parse(savedTalked));
-    if (savedGifted) setGifted(JSON.parse(savedGifted));
+    if (savedVillagers) {
+      try {
+        setVillagers(JSON.parse(savedVillagers));
+      } catch {
+        localStorage.removeItem("villagerFriendships");
+      }
+    }
+
+    if (savedTalked) {
+      try {
+        setTalked(JSON.parse(savedTalked));
+      } catch {
+        localStorage.removeItem("talkedVillagers");
+      }
+    }
+
+    if (savedGifted) {
+      try {
+        setGifted(JSON.parse(savedGifted));
+      } catch {
+        localStorage.removeItem("giftedVillagers");
+      }
+    }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("villagerFriendships", JSON.stringify(villagers));
-  }, [villagers]);
+    localStorage.setItem("villagerFriendships", JSON.stringify(villagersState));
+  }, [villagersState]);
 
   useEffect(() => {
     localStorage.setItem("talkedVillagers", JSON.stringify(talked));
@@ -64,7 +87,11 @@ export default function FriendshipPage() {
     );
   }
 
-  const sortedVillagers = sortVillagersByPriority(villagers, talked, gifted);
+  const sortedVillagers = sortVillagersByPriority(
+    villagersState,
+    talked,
+    gifted
+  );
 
   return (
     <main style={{ padding: "40px", fontFamily: "sans-serif" }}>
@@ -129,9 +156,9 @@ export default function FriendshipPage() {
                   {talked.includes(v.id) ? "Talked ✓" : "Talk Today"}
                 </button>
 
-                <button onClick={() => giftVillager(v.id)}>
-                  {gifted.includes(v.id) ? "Gifted ✓" : "Gift Today"}
-                </button>
+               <button onClick={() => giftVillager(v.id)}>
+  {gifted.includes(v.id) ? "Gifted ✓" : "Gift Today"}
+</button>
               </div>
             </div>
           </div>
