@@ -1,5 +1,5 @@
 "use client";
-
+import { sortVillagersByPriority } from "../../helpers/sortVillagersByPriority";
 import { useEffect, useState } from "react";
 import FriendshipBar from "../../components/FriendshipBar";
 import { villagers as initialVillagers } from "../../data/villagers";
@@ -75,7 +75,7 @@ export default function FriendshipPage() {
       </h1>
 
       <div style={{ display: "grid", gap: "20px" }}>
-        {villagers.map((v) => (
+        {sortVillagersByPriority(villagers, talked, gifted).map((v) => (
           <div
             key={v.id}
             style={{
