@@ -1,9 +1,12 @@
 "use client";
-import { sortVillagersByPriority } from "../../helpers/sortVillagersByPriority";
+
 import { useEffect, useState } from "react";
 import FriendshipBar from "../../components/FriendshipBar";
 import { villagers as initialVillagers } from "../../data/villagers";
-import {getFriendshipLevel, hasPhotoChance,} from "../../helpers/friendshipLevel";
+import {
+  getFriendshipLevel,
+  hasPhotoChance,
+} from "../../helpers/friendshipLevel";
 
 export default function FriendshipPage() {
   const [villagers, setVillagers] = useState(initialVillagers);
@@ -15,17 +18,9 @@ export default function FriendshipPage() {
     const savedTalked = localStorage.getItem("talkedVillagers");
     const savedGifted = localStorage.getItem("giftedVillagers");
 
-    if (savedVillagers) {
-      setVillagers(JSON.parse(savedVillagers));
-    }
-
-    if (savedTalked) {
-      setTalked(JSON.parse(savedTalked));
-    }
-
-    if (savedGifted) {
-      setGifted(JSON.parse(savedGifted));
-    }
+    if (savedVillagers) setVillagers(JSON.parse(savedVillagers));
+    if (savedTalked) setTalked(JSON.parse(savedTalked));
+    if (savedGifted) setGifted(JSON.parse(savedGifted));
   }, []);
 
   useEffect(() => {
@@ -68,6 +63,20 @@ export default function FriendshipPage() {
     );
   }
 
+  // ⭐ Priority sorting
+  const sortedVillagers = [...villagers].sort((a, b) => {
+    const aTalked = talked.includes(a.id);
+    const bTalked = talked.includes(b.id);
+
+    const aGifted = gifted.includes(a.id);
+    const bGifted = gifted.includes(b.id);
+
+    if (aTalked !== bTalked) return aTalked ? 1 : -1;
+    if (aGifted !== bGifted) return aGifted ? 1 : -1;
+
+    return a.friendship - b.friendship;
+  });
+
   return (
     <main style={{ padding: "40px", fontFamily: "sans-serif" }}>
       <h1 style={{ fontSize: "2.4rem", marginBottom: "30px" }}>
@@ -75,7 +84,7 @@ export default function FriendshipPage() {
       </h1>
 
       <div style={{ display: "grid", gap: "20px" }}>
-        {sortVillagersByPriority(villagers, talked, gifted).map((v) => (
+        {sortedVillagers.map((v) => (
           <div
             key={v.id}
             style={{
@@ -89,39 +98,27 @@ export default function FriendshipPage() {
               alignItems: "flex-start",
             }}
           >
-            <div
+            <img
+              src={v.portrait}
+              alt={v.name}
               style={{
                 width: "110px",
                 height: "110px",
-                borderRadius: "20px",
-                overflow: "hidden",
-                border: "1px solid var(--card-border)",
-                background: "#fff",
-                flexShrink: 0,
+                objectFit: "cover",
+                borderRadius: "16px",
               }}
-            >
-              <img
-                src={v.portrait}
-                alt={v.name}
-                style={{
-                  width: "110px",
-                  height: "110px",
-                  objectFit: "cover",
-                  borderRadius: "16px",
-                }}
-              />
-            </div>
+            />
 
             <div style={{ flex: 1 }}>
-              <h2 style={{ marginTop: 0, marginBottom: "8px" }}>{v.name}</h2>
+              <h2 style={{ marginTop: 0 }}>{v.name}</h2>
 
-              <p style={{ marginTop: 0, color: "var(--muted)" }}>
+              <p style={{ color: "var(--muted)" }}>
                 {v.personality} • {v.species}
               </p>
 
               <p>Birthday: {v.birthday}</p>
 
-              <div style={{ marginBottom: "8px", fontWeight: 600 }}>
+              <div style={{ fontWeight: 600 }}>
                 Friendship: {v.friendship}
               </div>
 
