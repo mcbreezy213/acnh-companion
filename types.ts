@@ -17,10 +17,13 @@ export type Villager = {
   portrait: string;
 };
 
+export type CritterType = "fish" | "bug" | "sea";
+
 export type Critter = {
   id: number;
   name: string;
-  type: "fish" | "bug" | "sea";
+  type: CritterType;
+  location: string;
   monthsNorth: number[];
   monthsSouth: number[];
   hours: number[];
