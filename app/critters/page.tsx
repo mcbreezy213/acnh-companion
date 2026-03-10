@@ -1,26 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getSettings } from "../../helpers/getSettings";
+import { useSettings } from "../../context/SettingsContext";
 import { critters } from "../../data/critters";
 import {
   getAvailableNow,
   getLeavingThisMonth,
   getNewThisMonth,
 } from "../../helpers/critterFilters";
-import type { Hemisphere } from "../../types";
 
 export default function CrittersPage() {
-  const [hemisphere, setHemisphere] = useState<Hemisphere>("north");
+  const { settings } = useSettings();
 
-  useEffect(() => {
-    const settings = getSettings();
-
-    if (settings && settings.hemisphere) {
-      setHemisphere(settings.hemisphere);
-    }
-  }, []);
-
+  const hemisphere = settings.hemisphere || "Northern";
   const currentMonth = new Date().getMonth() + 1;
   const currentHour = new Date().getHours();
 
@@ -42,9 +33,7 @@ export default function CrittersPage() {
     <main style={{ padding: "40px", fontFamily: "sans-serif" }}>
       <h1>Critters Guide</h1>
 
-      <p>
-        Hemisphere: {hemisphere === "north" ? "Northern" : "Southern"}
-      </p>
+      <p>Hemisphere: {hemisphere}</p>
 
       <section style={{ marginTop: "30px" }}>
         <h2>Available Right Now</h2>
@@ -59,10 +48,7 @@ export default function CrittersPage() {
                 borderRadius: "10px",
               }}
             >
-              <strong>{critter.name}</strong>
-              <p style={{ margin: "6px 0 0 0" }}>
-                {critter.type} • {critter.location}
-              </p>
+              <strong>{critter.name}</strong> ({critter.type})
             </div>
           ))
         ) : (
@@ -83,10 +69,7 @@ export default function CrittersPage() {
                 borderRadius: "10px",
               }}
             >
-              <strong>{critter.name}</strong>
-              <p style={{ margin: "6px 0 0 0" }}>
-                {critter.type} • {critter.location}
-              </p>
+              <strong>{critter.name}</strong> ({critter.type})
             </div>
           ))
         ) : (
@@ -95,7 +78,7 @@ export default function CrittersPage() {
       </section>
 
       <section style={{ marginTop: "30px" }}>
-        <h2>Leaving This Month</h2>
+        <h2>Leaving After This Month</h2>
         {leavingThisMonth.length > 0 ? (
           leavingThisMonth.map((critter) => (
             <div
@@ -107,10 +90,7 @@ export default function CrittersPage() {
                 borderRadius: "10px",
               }}
             >
-              <strong>{critter.name}</strong>
-              <p style={{ margin: "6px 0 0 0" }}>
-                {critter.type} • {critter.location}
-              </p>
+              <strong>{critter.name}</strong> ({critter.type})
             </div>
           ))
         ) : (
