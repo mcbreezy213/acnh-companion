@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Card from "../components/Card";
 import { useSettings } from "../context/SettingsContext";
 import { villagers } from "../data/villagers";
@@ -10,40 +11,61 @@ import { getAvailableNow } from "../helpers/critterFilters";
 
 export default function Home() {
   const { settings } = useSettings();
-  const [villagersState, setVillagers] = useState(villagers);
+  const router = useRouter();
+
   const [talked, setTalked] = useState<number[]>([]);
   const [gifted, setGifted] = useState<number[]>([]);
   const [completedTasks, setCompletedTasks] = useState<number[]>([]);
 
   useEffect(() => {
-  const savedVillagers = localStorage.getItem("villagerFriendships");
-  const savedTalked = localStorage.getItem("talkedVillagers");
-  const savedGifted = localStorage.getItem("giftedVillagers");
+    const setupComplete = localStorage.getItem("setupComplete");
 
-  if (savedVillagers) {
-    try {
-      setVillagers(JSON.parse(savedVillagers));
-    } catch {
-      localStorage.removeItem("villagerFriendships");
+    if (!setupComplete) {
+      router.push("/setup");
     }
-  }
+  }, [router]);
 
-  if (savedTalked) {
-    try {
-      setTalked(JSON.parse(savedTalked));
-    } catch {
-      localStorage.removeItem("talkedVillagers");
-    }
-  }
+  useEffect(() => {
+    const savedTalked = localStorage.getItem("talkedVillagers");
+    const savedGifted = localStorage.getItem("giftedVillagers");
+    const savedCompletedTasks = localStorage.getItem("completedTasks");
 
-  if (savedGifted) {
-    try {
-      setGifted(JSON.parse(savedGifted));
-    } catch {
-      localStorage.removeItem("giftedVillagers");
+    if (savedTalked) {
+      try {
+        setTalked(JSON.parse(savedTalked));
+      } catch {
+        localStorage.removeItem("talkedVillagers");
+      }
     }
-  }
-}, []);
+
+    if (savedGifted) {
+      try {
+        setGifted(JSON.parse(savedGifted));
+      } catch {
+        localStorage.removeItem("giftedVillagers");
+      }
+    }
+
+    if (savedCompletedTasks) {
+      try {
+        setCompletedTasks(JSON.parse(savedCompletedTasks));
+      } catch {
+        localStorage.removeItem("completedTasks");
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("talkedVillagers", JSON.stringify(talked));
+  }, [talked]);
+
+  useEffect(() => {
+    localStorage.setItem("giftedVillagers", JSON.stringify(gifted));
+  }, [gifted]);
+
+  useEffect(() => {
+    localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
+  }, [completedTasks]);
 
   const currentMonth = new Date().getMonth() + 1;
   const currentHour = new Date().getHours();
@@ -65,60 +87,77 @@ export default function Home() {
 
   return (
     <main style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      <h1>Island Dashboard</h1>
+      <h1 style={{ fontSize: "2.8rem", marginBottom: "30px" }}>
+        Island Dashboard
+      </h1>
 
-      <Card title="Your Island">
-        <p>
-          <strong>Player:</strong> {settings.playerName || "Not set"}
-        </p>
-        <p>
-          <strong>Island:</strong> {settings.islandName || "Not set"}
-        </p>
-        <p>
-          <strong>Hemisphere:</strong>{" "}
-          {settings.hemisphere === "north" ? "Northern" : "Southern"}
-        </p>
-        <p>
-          <strong>Native Fruit:</strong> {settings.nativeFruit || "Not set"}
-        </p>
-      </Card>
+      <div style={{ display: "grid", gap: "20px" }}>
+        <Card title="Your Island">
+          <p>
+            <strong>Player:</strong> {settings.playerName || "Not set"}
+          </p>
+          <p>
+            <strong>Island:</strong> {settings.islandName || "Not set"}
+          </p>
+          <p>
+            <strong>Hemisphere:</strong> {settings.hemisphere || "Northern"}
+          </p>
+          <p>
+            <strong>Native Fruit:</strong> {settings.nativeFruit || "Not set"}
+          </p>
+        </Card>
 
-      <Card title="Island Overview">
-        <p>
-          <strong>Villagers needing attention:</strong>{" "}
-          {villagersNeedingAttention.length}
-        </p>
-        <p>
-          <strong>Daily tasks remaining:</strong> {remainingTasks.length}
-        </p>
-        <p>
-          <strong>Critters available now:</strong> {availableCritters.length}
-        </p>
-      </Card>
+        <Card title="Island Overview">
+          <p>
+            <strong>Villagers needing attention:</strong>{" "}
+            {villagersNeedingAttention.length}
+          </p>
+          <p>
+            <strong>Daily tasks remaining:</strong> {remainingTasks.length}
+          </p>
+          <p>
+            <strong>Critters available now:</strong> {availableCritters.length}
+          </p>
+        </Card>
 
-      <Card title="Villagers Needing Attention">
-        {villagersNeedingAttention.length > 0 ? (
-          villagersNeedingAttention.map((v) => <p key={v.id}>{v.name}</p>)
-        ) : (
-          <p>All villagers talked to and gifted today ✓</p>
-        )}
-      </Card>
+        <Card title="Villagers Needing Attention">
+          {villagersNeedingAttention.length > 0 ? (
+            <ul style={{ paddingLeft: "20px", margin: 0 }}>
+              {villagersNeedingAttention.map((v) => (
+                <li key={v.id}>{v.name}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>All villagers are done for today ✓</p>
+          )}
+        </Card>
 
-      <Card title="Daily Tasks Remaining">
-        {remainingTasks.length > 0 ? (
-          remainingTasks.map((task) => <p key={task.id}>{task.name}</p>)
-        ) : (
-          <p>All daily tasks complete ✓</p>
-        )}
-      </Card>
+        <Card title="Daily Tasks Remaining">
+          {remainingTasks.length > 0 ? (
+            <ul style={{ paddingLeft: "20px", margin: 0 }}>
+              {remainingTasks.map((task) => (
+                <li key={task.id}>{task.name}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>All daily tasks complete ✓</p>
+          )}
+        </Card>
 
-      <Card title="Critters Available Now">
-        {availableCritters.length > 0 ? (
-          availableCritters.map((c) => <p key={c.id}>{c.name}</p>)
-        ) : (
-          <p>No critters available right now.</p>
-        )}
-      </Card>
+        <Card title="Critters Available Now">
+          {availableCritters.length > 0 ? (
+            <ul style={{ paddingLeft: "20px", margin: 0 }}>
+              {availableCritters.slice(0, 10).map((critter) => (
+                <li key={critter.id}>
+                  {critter.name} ({critter.type})
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No critters available right now.</p>
+          )}
+        </Card>
+      </div>
     </main>
   );
 }

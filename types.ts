@@ -1,4 +1,4 @@
-export type Hemisphere = "north" | "south";
+export type Hemisphere = "Northern" | "Southern";
 
 export type Settings = {
   playerName: string;
@@ -17,18 +17,11 @@ export type Villager = {
   portrait: string;
 };
 
-export type DailyTask = {
-  id: number;
-  name: string;
-};
-
 export type Critter = {
   id: number;
   name: string;
-  type: "Fish" | "Bug" | "Sea Creature";
-  location: string;
+  type: "fish" | "bug" | "sea";
   monthsNorth: number[];
   monthsSouth: number[];
-  startHour: number;
-  endHour: number;
+  hours: number[];
 };

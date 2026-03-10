@@ -1,12 +1,17 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import type { Settings } from "../types";
 
 const defaultSettings: Settings = {
   playerName: "",
   islandName: "",
-  hemisphere: "north",
+  hemisphere: "Northern",
   nativeFruit: "",
 };
 
@@ -20,14 +25,22 @@ const SettingsContext = createContext<SettingsContextType>({
   setSettings: () => {},
 });
 
-export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [settings, setSettingsState] = useState(defaultSettings);
+export function SettingsProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [settings, setSettingsState] = useState<Settings>(defaultSettings);
 
   useEffect(() => {
     const saved = localStorage.getItem("acnhSettings");
 
     if (saved) {
-      setSettingsState(JSON.parse(saved));
+      try {
+        setSettingsState(JSON.parse(saved));
+      } catch {
+        localStorage.removeItem("acnhSettings");
+      }
     }
   }, []);
 
