@@ -10,6 +10,7 @@ import {
 } from "../../helpers/friendshipLevel";
 import { sortVillagersByPriority } from "../../helpers/sortVillagersByPriority";
 import { shouldResetDaily } from "../../utils/dailyReset";
+import { resetDailyProgress } from "../../utils/dailyReset";
 
 export default function FriendshipPage() {
   const { settings } = useSettings();
@@ -107,6 +108,23 @@ export default function FriendshipPage() {
         Villager Friendship Tracker
       </h1>
 
+<button
+  onClick={() => {
+    resetDailyProgress();
+    window.location.reload();
+  }}
+  style={{
+    marginBottom: "20px",
+    padding: "8px 14px",
+    borderRadius: "10px",
+    background: "#c97",
+    color: "white",
+    border: "none",
+    cursor: "pointer"
+  }}
+>
+  Reset Daily Progress
+</button>
       <div style={{ display: "grid", gap: "20px" }}>
         {sortedVillagers.map((v) => (
           <div

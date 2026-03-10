@@ -2,6 +2,7 @@ export function shouldResetDaily(): boolean {
   const now = new Date();
   const resetDate = new Date(now);
 
+  // ACNH resets at 5AM
   if (now.getHours() < 5) {
     resetDate.setDate(resetDate.getDate() - 1);
   }
@@ -20,4 +21,9 @@ export function shouldResetDaily(): boolean {
   }
 
   return false;
+}
+
+export function resetDailyProgress() {
+  localStorage.setItem("talkedVillagers", JSON.stringify([]));
+  localStorage.setItem("giftedVillagers", JSON.stringify([]));
 }
