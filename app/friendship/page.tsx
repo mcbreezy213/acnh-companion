@@ -63,25 +63,33 @@ export default function FriendshipPage() {
     );
   }
 
-  // ⭐ Priority sorting
   const sortedVillagers = [...villagers].sort((a, b) => {
-    const aTalked = talked.includes(a.id);
-    const bTalked = talked.includes(b.id);
+    const aNeedsTalk = !talked.includes(a.id);
+    const bNeedsTalk = !talked.includes(b.id);
 
-    const aGifted = gifted.includes(a.id);
-    const bGifted = gifted.includes(b.id);
+    const aNeedsGift = !gifted.includes(a.id);
+    const bNeedsGift = !gifted.includes(b.id);
 
-    if (aTalked !== bTalked) return aTalked ? 1 : -1;
-    if (aGifted !== bGifted) return aGifted ? 1 : -1;
+    if (aNeedsTalk !== bNeedsTalk) {
+      return aNeedsTalk ? -1 : 1;
+    }
+
+    if (aNeedsGift !== bNeedsGift) {
+      return aNeedsGift ? -1 : 1;
+    }
 
     return a.friendship - b.friendship;
   });
 
   return (
     <main style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      <h1 style={{ fontSize: "2.4rem", marginBottom: "30px" }}>
+      <h1 style={{ fontSize: "2.4rem", marginBottom: "20px" }}>
         Villager Friendship Tracker
       </h1>
+
+      <p style={{ marginBottom: "20px", color: "var(--muted)" }}>
+        Current order: {sortedVillagers.map((v) => v.name).join(" → ")}
+      </p>
 
       <div style={{ display: "grid", gap: "20px" }}>
         {sortedVillagers.map((v) => (
