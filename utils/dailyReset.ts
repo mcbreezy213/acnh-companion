@@ -1,19 +1,21 @@
-export function getTodayDate() {
-  const today = new Date();
-  return today.toISOString().split("T")[0];
-}
+export function shouldResetDaily(): boolean {
+  const now = new Date();
+  const resetDate = new Date(now);
 
-export function shouldResetDaily() {
-  const today = getTodayDate();
-  const lastOpened = localStorage.getItem("lastOpened");
+  if (now.getHours() < 5) {
+    resetDate.setDate(resetDate.getDate() - 1);
+  }
+
+  const resetKey = resetDate.toLocaleDateString();
+  const lastOpened = localStorage.getItem("lastOpenedDay");
 
   if (!lastOpened) {
-    localStorage.setItem("lastOpened", today);
+    localStorage.setItem("lastOpenedDay", resetKey);
     return false;
   }
 
-  if (lastOpened !== today) {
-    localStorage.setItem("lastOpened", today);
+  if (lastOpened !== resetKey) {
+    localStorage.setItem("lastOpenedDay", resetKey);
     return true;
   }
 

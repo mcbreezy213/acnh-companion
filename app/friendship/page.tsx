@@ -9,6 +9,7 @@ import {
   hasPhotoChance,
 } from "../../helpers/friendshipLevel";
 import { sortVillagersByPriority } from "../../helpers/sortVillagersByPriority";
+import { shouldResetDaily } from "../../utils/dailyReset";
 
 export default function FriendshipPage() {
   const { settings } = useSettings();
@@ -44,6 +45,13 @@ export default function FriendshipPage() {
       } catch {
         localStorage.removeItem("giftedVillagers");
       }
+    }
+
+    if (shouldResetDaily()) {
+      setTalked([]);
+      setGifted([]);
+      localStorage.setItem("talkedVillagers", JSON.stringify([]));
+      localStorage.setItem("giftedVillagers", JSON.stringify([]));
     }
   }, []);
 
@@ -99,10 +107,6 @@ export default function FriendshipPage() {
         Villager Friendship Tracker
       </h1>
 
-      <p style={{ marginBottom: "20px", color: "var(--muted)" }}>
-        Current order: {sortedVillagers.map((v) => v.name).join(" → ")}
-      </p>
-
       <div style={{ display: "grid", gap: "20px" }}>
         {sortedVillagers.map((v) => (
           <div
@@ -116,6 +120,8 @@ export default function FriendshipPage() {
               display: "flex",
               gap: "20px",
               alignItems: "flex-start",
+              opacity:
+                talked.includes(v.id) && gifted.includes(v.id) ? 0.75 : 1,
             }}
           >
             <img
@@ -156,9 +162,9 @@ export default function FriendshipPage() {
                   {talked.includes(v.id) ? "Talked ✓" : "Talk Today"}
                 </button>
 
-               <button onClick={() => giftVillager(v.id)}>
-  {gifted.includes(v.id) ? "Gifted ✓" : "Gift Today"}
-</button>
+                <button onClick={() => giftVillager(v.id)}>
+                  {gifted.includes(v.id) ? "Gifted ✓" : "Gift Today"}
+                </button>
               </div>
             </div>
           </div>
