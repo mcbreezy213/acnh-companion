@@ -1,13 +1,13 @@
 type FriendshipBarProps = {
-  points: number
-  max?: number
-}
+  points: number;
+  max?: number;
+};
 
 export default function FriendshipBar({
   points,
   max = 100,
 }: FriendshipBarProps) {
-  const percent = Math.min((points / max) * 100, 100)
+  const percent = Math.min((points / max) * 100, 100);
 
   return (
     <div style={{ marginTop: "10px", marginBottom: "14px" }}>
@@ -35,7 +35,6 @@ export default function FriendshipBar({
           }}
         />
 
-        {/* Leaf icon */}
         <div
           style={{
             position: "absolute",
@@ -66,5 +65,5 @@ export default function FriendshipBar({
         {points} / {max}
       </div>
     </div>
-  )
+  );
 }

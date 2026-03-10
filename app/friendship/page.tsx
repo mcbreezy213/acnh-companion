@@ -1,13 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import FriendshipBar from "../../components/FriendshipBar";
 import { villagers as initialVillagers } from "../../data/villagers";
-import {
-  getFriendshipLevel,
-  hasPhotoChance,
-} from "../../helpers/friendshipLevel";
+import {getFriendshipLevel, hasPhotoChance,} from "../../helpers/friendshipLevel";
 
 export default function FriendshipPage() {
   const [villagers, setVillagers] = useState(initialVillagers);
@@ -51,7 +47,9 @@ export default function FriendshipPage() {
 
     setVillagers((prev) =>
       prev.map((v) =>
-        v.id === id ? { ...v, friendship: v.friendship + 1 } : v
+        v.id === id
+          ? { ...v, friendship: Math.min(v.friendship + 1, 100) }
+          : v
       )
     );
   }
@@ -63,7 +61,9 @@ export default function FriendshipPage() {
 
     setVillagers((prev) =>
       prev.map((v) =>
-        v.id === id ? { ...v, friendship: v.friendship + 3 } : v
+        v.id === id
+          ? { ...v, friendship: Math.min(v.friendship + 3, 100) }
+          : v
       )
     );
   }
