@@ -213,16 +213,28 @@ export default function CrittersPage() {
                   </h2>
 
                   <p style={{ margin: "0 0 6px 0", color: "var(--muted)" }}>
-                    {critter.type} • {critter.location}
-                  </p>
+  {critter.type} • {critter.location}
+</p>
 
-                  <p style={{ margin: "0 0 6px 0" }}>
-                    <strong>Price:</strong> {critter.price.toLocaleString()} bells
-                  </p>
+{critter.shadowSize && (
+  <p style={{ margin: "0 0 6px 0" }}>
+    <strong>Shadow Size:</strong> {critter.shadowSize}
+  </p>
+)}
 
-                  <p style={{ margin: 0 }}>
-                    <strong>Time:</strong> {formatCritterHours(critter.hours)}
-                  </p>
+{critter.speed && (
+  <p style={{ margin: "0 0 6px 0" }}>
+    <strong>Speed:</strong> {critter.speed}
+  </p>
+)}
+
+<p style={{ margin: "0 0 6px 0" }}>
+  <strong>Price:</strong> {critter.price.toLocaleString()} bells
+</p>
+
+<p style={{ margin: 0 }}>
+  <strong>Time:</strong> {formatCritterHours(critter.hours)}
+</p>
                 </div>
 
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
