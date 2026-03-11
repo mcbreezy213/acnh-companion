@@ -11,6 +11,39 @@ import {
 
 type CritterTypeFilter = "all" | "fish" | "bug" | "sea";
 
+function getCritterIcon(type: "fish" | "bug" | "sea") {
+  if (type === "fish") return "🐟";
+  if (type === "bug") return "🐞";
+  return "🦀";
+}
+
+function formatHour(hour: number): string {
+  const suffix = hour >= 12 ? "PM" : "AM";
+  const normalized = hour % 12 === 0 ? 12 : hour % 12;
+  return `${normalized}${suffix}`;
+}
+
+function formatCritterHours(hours: number[]): string {
+  if (hours.length === 24) return "All day";
+  if (hours.length === 0) return "Unknown";
+
+  const sorted = [...hours].sort((a, b) => a - b);
+  const start = sorted[0];
+  const end = sorted[sorted.length - 1];
+
+  return `${formatHour(start)} – ${formatHour(end)}`;
+}
+
+function badgeStyle(background: string) {
+  return {
+    padding: "6px 10px",
+    borderRadius: "999px",
+    background,
+    border: "1px solid var(--border)",
+    fontSize: "0.9rem",
+  } as const;
+}
+
 export default function CrittersPage() {
   const { settings } = useSettings();
 
@@ -100,6 +133,10 @@ export default function CrittersPage() {
     return matchesType && matchesSearch && matchesAvailable;
   });
 
+  const caughtCount = caught.length;
+  const donatedCount = donated.length;
+  const totalCritters = critters.length;
+
   return (
     <main>
       <h1>Critters Guide</h1>
@@ -115,11 +152,13 @@ export default function CrittersPage() {
         <p style={{ margin: 0 }}>
           <strong>Hemisphere:</strong> {hemisphere}
         </p>
+
         <p style={{ margin: 0 }}>
-          <strong>Current month:</strong> {currentMonth}
+          <strong>Caught:</strong> {caughtCount} / {totalCritters}
         </p>
+
         <p style={{ margin: 0 }}>
-          <strong>Current hour:</strong> {currentHour}:00
+          <strong>Donated:</strong> {donatedCount} / {totalCritters}
         </p>
 
         <input
@@ -131,21 +170,16 @@ export default function CrittersPage() {
 
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           <button onClick={() => setTypeFilter("all")}>All</button>
-          <button onClick={() => setTypeFilter("fish")}>Fish</button>
-          <button onClick={() => setTypeFilter("bug")}>Bugs</button>
-          <button onClick={() => setTypeFilter("sea")}>Sea</button>
+          <button onClick={() => setTypeFilter("fish")}>🐟 Fish</button>
+          <button onClick={() => setTypeFilter("bug")}>🐞 Bugs</button>
+          <button onClick={() => setTypeFilter("sea")}>🦀 Sea</button>
           <button onClick={() => setShowAvailableOnly((prev) => !prev)}>
             {showAvailableOnly ? "Show All" : "Available Now Only"}
           </button>
         </div>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gap: "20px",
-        }}
-      >
+      <div style={{ display: "grid", gap: "20px" }}>
         {filteredCritters.map((critter) => {
           const isAvailable = availableNowIds.has(critter.id);
           const isNew = newThisMonthIds.has(critter.id);
@@ -158,11 +192,10 @@ export default function CrittersPage() {
               key={critter.id}
               className="card"
               style={{
-                border:
-                  isAvailable
-                    ? "2px solid var(--accent)"
-                    : "1px solid var(--border)",
-                opacity: isDonated ? 0.8 : 1,
+                border: isAvailable
+                  ? "2px solid var(--accent)"
+                  : "1px solid var(--border)",
+                opacity: isDonated ? 0.82 : 1,
               }}
             >
               <div
@@ -175,58 +208,46 @@ export default function CrittersPage() {
                 }}
               >
                 <div>
-                  <h2 style={{ marginBottom: "8px" }}>{critter.name}</h2>
-                  <p style={{ margin: 0, color: "var(--muted)" }}>
+                  <h2 style={{ marginBottom: "8px" }}>
+                    {getCritterIcon(critter.type)} {critter.name}
+                  </h2>
+
+                  <p style={{ margin: "0 0 6px 0", color: "var(--muted)" }}>
                     {critter.type} • {critter.location}
+                  </p>
+
+                  <p style={{ margin: "0 0 6px 0" }}>
+                    <strong>Price:</strong> {critter.price.toLocaleString()} bells
+                  </p>
+
+                  <p style={{ margin: 0 }}>
+                    <strong>Time:</strong> {formatCritterHours(critter.hours)}
                   </p>
                 </div>
 
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                   {isAvailable && (
-                    <span
-                      style={{
-                        padding: "6px 10px",
-                        borderRadius: "999px",
-                        background: "#e7f5ea",
-                        border: "1px solid var(--border)",
-                        fontSize: "0.9rem",
-                      }}
-                    >
-                      Available now
-                    </span>
+                    <span style={badgeStyle("#e7f5ea")}>Available now</span>
                   )}
 
                   {isNew && (
-                    <span
-                      style={{
-                        padding: "6px 10px",
-                        borderRadius: "999px",
-                        background: "#eef4ff",
-                        border: "1px solid var(--border)",
-                        fontSize: "0.9rem",
-                      }}
-                    >
-                      New this month
-                    </span>
+                    <span style={badgeStyle("#eef4ff")}>New this month</span>
                   )}
 
                   {isLeaving && (
-                    <span
-                      style={{
-                        padding: "6px 10px",
-                        borderRadius: "999px",
-                        background: "#fff4e8",
-                        border: "1px solid var(--border)",
-                        fontSize: "0.9rem",
-                      }}
-                    >
-                      Leaving soon
-                    </span>
+                    <span style={badgeStyle("#fff4e8")}>Leaving soon</span>
                   )}
                 </div>
               </div>
 
-              <div style={{ marginTop: "16px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <div
+                style={{
+                  marginTop: "16px",
+                  display: "flex",
+                  gap: "10px",
+                  flexWrap: "wrap",
+                }}
+              >
                 <button onClick={() => toggleCaught(critter.id)}>
                   {isCaught ? "Caught ✓" : "Mark Caught"}
                 </button>
