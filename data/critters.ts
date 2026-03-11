@@ -9,6 +9,7 @@ export const critters: Critter[] = [
     monthsNorth: [12, 1, 2, 3],
     monthsSouth: [6, 7, 8, 9],
     hours: [16, 17, 18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6, 7, 8],
+    price: 15000,
   },
   {
     id: 2,
@@ -18,6 +19,7 @@ export const critters: Critter[] = [
     monthsNorth: [9, 10, 11, 12, 1, 2, 3, 4, 5, 6],
     monthsSouth: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     hours: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+    price: 160,
   },
   {
     id: 3,
@@ -27,5 +29,6 @@ export const critters: Critter[] = [
     monthsNorth: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     monthsSouth: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+    price: 500,
   },
 ];

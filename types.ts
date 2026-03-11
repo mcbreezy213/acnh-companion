@@ -27,4 +27,7 @@ export type Critter = {
   monthsNorth: number[];
   monthsSouth: number[];
   hours: number[];
+  price: number;
+  shadowSize?: string;
+  speed?: string;
 };
