@@ -5,7 +5,7 @@ export function isCritterAvailableNow(
   hemisphere: Hemisphere,
   currentMonth: number,
   currentHour: number
-) {
+): boolean {
   const months =
     hemisphere === "Northern" ? critter.monthsNorth : critter.monthsSouth;
 
