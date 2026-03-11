@@ -86,10 +86,8 @@ export default function Home() {
   );
 
   return (
-    <main style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      <h1 style={{ fontSize: "2.8rem", marginBottom: "30px" }}>
-        Island Dashboard
-      </h1>
+    <main className="page-shell">
+      <h1 className="page-title">Island Dashboard</h1>
 
       <div style={{ display: "grid", gap: "20px" }}>
         <Card title="Your Island">
