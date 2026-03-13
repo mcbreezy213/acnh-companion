@@ -1,40 +1,25 @@
-import type { Villager } from "../types";
+import type { Villager } from "@/types/villagers";
 
 export const villagers: Villager[] = [
   {
     id: 1,
-    name: "Marshal",
+    name: "Raymond",
     personality: "Smug",
-    species: "Squirrel",
-    birthday: "September 29",
-    friendship: 60,
-    portrait: "/villagers/marshal.png",
+    birthday: "October 1",
+    species: "Cat",
   },
   {
     id: 2,
-    name: "Maple",
-    personality: "Normal",
-    species: "Cub",
-    birthday: "June 15",
-    friendship: 40,
-    portrait: "/villagers/maple.png",
+    name: "Marshal",
+    personality: "Smug",
+    birthday: "September 29",
+    species: "Squirrel",
   },
   {
     id: 3,
-    name: "Roald",
-    personality: "Jock",
-    species: "Penguin",
-    birthday: "January 5",
-    friendship: 25,
-    portrait: "/villagers/roald.png",
-  },
-  {
-    id: 4,
     name: "Shino",
     personality: "Peppy",
-    species: "Deer",
     birthday: "October 31",
-    friendship: 50,
-    portrait: "/villagers/shino.png",
+    species: "Deer",
   },
 ];

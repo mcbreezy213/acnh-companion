@@ -1,61 +1,59 @@
 "use client";
 
-import React, {
+import {
   createContext,
   useContext,
-  useEffect,
   useState,
+  type ReactNode,
 } from "react";
-import type { Settings } from "../types";
 
-const defaultSettings: Settings = {
-  playerName: "",
-  islandName: "",
-  hemisphere: "Northern",
-  nativeFruit: "",
-};
+import type { AppSettings } from "@/types/settings";
+import { defaultSettings } from "@/data/defaultSettings";
+import { getSettings, saveSettings } from "@/lib/storage/settingsStorage";
 
 type SettingsContextType = {
-  settings: Settings;
-  setSettings: (settings: Settings) => void;
+  settings: AppSettings;
+  updateSettings: (updates: Partial<AppSettings>) => void;
+  replaceSettings: (settings: AppSettings) => void;
 };
 
-const SettingsContext = createContext<SettingsContextType>({
-  settings: defaultSettings,
-  setSettings: () => {},
-});
+const SettingsContext = createContext<SettingsContextType | null>(null);
 
-export function SettingsProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [settings, setSettingsState] = useState<Settings>(defaultSettings);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("acnhSettings");
-
-    if (saved) {
-      try {
-        setSettingsState(JSON.parse(saved));
-      } catch {
-        localStorage.removeItem("acnhSettings");
-      }
+export function SettingsProvider({ children }: { children: ReactNode }) {
+  const [settings, setSettingsState] = useState<AppSettings>(() => {
+    try {
+      return getSettings();
+    } catch {
+      return defaultSettings;
     }
-  }, []);
+  });
 
-  function setSettings(newSettings: Settings) {
+  function replaceSettings(newSettings: AppSettings) {
+    saveSettings(newSettings);
     setSettingsState(newSettings);
-    localStorage.setItem("acnhSettings", JSON.stringify(newSettings));
+  }
+
+  function updateSettings(updates: Partial<AppSettings>) {
+    const nextSettings = { ...settings, ...updates };
+    saveSettings(nextSettings);
+    setSettingsState(nextSettings);
   }
 
   return (
-    <SettingsContext.Provider value={{ settings, setSettings }}>
+    <SettingsContext.Provider
+      value={{ settings, updateSettings, replaceSettings }}
+    >
       {children}
     </SettingsContext.Provider>
   );
 }
 
 export function useSettings() {
-  return useContext(SettingsContext);
+  const context = useContext(SettingsContext);
+
+  if (!context) {
+    throw new Error("useSettings must be used inside SettingsProvider");
+  }
+
+  return context;
 }

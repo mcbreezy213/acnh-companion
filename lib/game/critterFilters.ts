@@ -1,4 +1,5 @@
-import type { Critter, Hemisphere } from "../types";
+import type { Critter } from "@/types/critters";
+import type { Hemisphere } from "@/types/settings";
 
 function getMonthsForHemisphere(
   critter: Critter,
@@ -9,19 +10,32 @@ function getMonthsForHemisphere(
     : critter.monthsSouth;
 }
 
+function isAvailableThisMonth(
+  critter: Critter,
+  hemisphere: Hemisphere,
+  month: number
+): boolean {
+  const months = getMonthsForHemisphere(critter, hemisphere);
+  return months.includes(month);
+}
+
+function isAvailableThisHour(
+  critter: Critter,
+  hour: number
+): boolean {
+  return critter.hours.includes(hour);
+}
+
 export function getAvailableNow(
   critters: Critter[],
   hemisphere: Hemisphere,
   currentMonth: number,
   currentHour: number
 ): Critter[] {
-  return critters.filter((critter) => {
-    const months = getMonthsForHemisphere(critter, hemisphere);
-    const monthMatch = months.includes(currentMonth);
-    const hourMatch = critter.hours.includes(currentHour);
-
-    return monthMatch && hourMatch;
-  });
+  return critters.filter((critter) =>
+    isAvailableThisMonth(critter, hemisphere, currentMonth) &&
+    isAvailableThisHour(critter, currentHour)
+  );
 }
 
 export function getNewThisMonth(
@@ -29,10 +43,9 @@ export function getNewThisMonth(
   hemisphere: Hemisphere,
   currentMonth: number
 ): Critter[] {
-  return critters.filter((critter) => {
-    const months = getMonthsForHemisphere(critter, hemisphere);
-    return months.includes(currentMonth);
-  });
+  return critters.filter((critter) =>
+    isAvailableThisMonth(critter, hemisphere, currentMonth)
+  );
 }
 
 export function getLeavingThisMonth(
