@@ -1,17 +1,11 @@
 import Link from "next/link";
 
-type NavItem = {
-  href: string;
-  label: string;
-  icon: string;
-};
-
-const navItems: NavItem[] = [
+const navItems = [
   { href: "/", label: "Home", icon: "🏝" },
-  { href: "/critters", label: "Critters", icon: "🐟" },
-  { href: "/daily", label: "Daily", icon: "📅" },
-  { href: "/friendship", label: "Villagers", icon: "👥" },
-  { href: "/turnips", label: "Turnips", icon: "💰" },
+  { href: "/collections/critters", label: "Critters", icon: "🐟" },
+  { href: "/planner/daily", label: "Daily", icon: "📅" },
+  { href: "/villagers", label: "Villagers", icon: "👥" },
+  { href: "/planner/turnips", label: "Turnips", icon: "💰" },
   { href: "/settings", label: "Settings", icon: "⚙" },
 ];
 
