@@ -182,3 +182,75 @@ textarea {
     font-size: 0.68rem;
   }
 }
+body {
+  background: #e9e5d8;
+  font-family: system-ui, sans-serif;
+}
+
+.page {
+  max-width: 700px;
+  margin: auto;
+  padding: 24px 20px 120px;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.btn {
+  background: #7ecf9a;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #6bc48b;
+}
+.bottom-nav {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 700px;
+
+  display: flex;
+  justify-content: space-around;
+
+  background: white;
+  padding: 12px 10px;
+
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+  text-decoration: none;
+  color: #444;
+}
