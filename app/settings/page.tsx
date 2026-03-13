@@ -1,119 +1,91 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { defaultSettings } from "../../data/defaultSettings";
+import { useState } from "react";
 
-type Settings = {
-  playerName: string;
-  islandName: string;
-  hemisphere: string;
-  nativeFruit: string;
-};
+import Card from "@/components/ui/Card";
+import { useSettings } from "@/context/SettingsContext";
+import type { Hemisphere, NativeFruit } from "@/types/settings";
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<Settings>(defaultSettings);
-  const [savedMessage, setSavedMessage] = useState("");
+  const { settings, replaceSettings } = useSettings();
 
-  useEffect(() => {
-    const savedSettings = localStorage.getItem("acnhSettings");
+  const [playerName, setPlayerName] = useState(settings.playerName);
+  const [islandName, setIslandName] = useState(settings.islandName);
+  const [hemisphere, setHemisphere] = useState<Hemisphere>(settings.hemisphere);
+  const [nativeFruit, setNativeFruit] = useState<NativeFruit>(
+    settings.nativeFruit
+  );
 
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
-  }, []);
+  function handleSave(e: React.FormEvent) {
+    e.preventDefault();
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) {
-    const { name, value } = e.target;
-    setSettings((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
-
-  function saveSettings() {
-    localStorage.setItem("acnhSettings", JSON.stringify(settings));
-    setSavedMessage("Settings saved!");
-
-    setTimeout(() => {
-      setSavedMessage("");
-    }, 2000);
+    replaceSettings({
+      playerName,
+      islandName,
+      hemisphere,
+      nativeFruit,
+    });
   }
 
   return (
-    <main style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      <h1>Island Settings</h1>
+    <main className="page-shell">
+      <h1 className="page-title">Settings</h1>
 
-      <div style={{ marginBottom: "15px" }}>
-        <label>Player Name</label>
-        <br />
-        <input
-          type="text"
-          name="playerName"
-          value={settings.playerName}
-          onChange={handleChange}
-          style={{ padding: "8px", width: "300px" }}
-        />
-      </div>
+      <Card title="Island Settings">
+        <form onSubmit={handleSave} className="grid gap-4">
+          <div className="form-group">
+            <label htmlFor="playerName">Player Name</label>
+            <input
+              id="playerName"
+              type="text"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+            />
+          </div>
 
-      <div style={{ marginBottom: "15px" }}>
-        <label>Island Name</label>
-        <br />
-        <input
-          type="text"
-          name="islandName"
-          value={settings.islandName}
-          onChange={handleChange}
-          style={{ padding: "8px", width: "300px" }}
-        />
-      </div>
+          <div className="form-group">
+            <label htmlFor="islandName">Island Name</label>
+            <input
+              id="islandName"
+              type="text"
+              value={islandName}
+              onChange={(e) => setIslandName(e.target.value)}
+            />
+          </div>
 
-      <div style={{ marginBottom: "15px" }}>
-        <label>Hemisphere</label>
-        <br />
-        <select
-          name="hemisphere"
-          value={settings.hemisphere}
-          onChange={handleChange}
-          style={{ padding: "8px", width: "320px" }}
-        >
-          <option value="north">Northern</option>
-          <option value="south">Southern</option>
-        </select>
-      </div>
+          <div className="form-group">
+            <label htmlFor="hemisphere">Hemisphere</label>
+            <select
+              id="hemisphere"
+              value={hemisphere}
+              onChange={(e) => setHemisphere(e.target.value as Hemisphere)}
+            >
+              <option value="Northern">Northern</option>
+              <option value="Southern">Southern</option>
+            </select>
+          </div>
 
-      <div style={{ marginBottom: "15px" }}>
-        <label>Native Fruit</label>
-        <br />
-        <select
-          name="nativeFruit"
-          value={settings.nativeFruit}
-          onChange={handleChange}
-          style={{ padding: "8px", width: "320px" }}
-        >
-          <option value="">Select fruit</option>
-          <option value="Apples">Apples</option>
-          <option value="Cherries">Cherries</option>
-          <option value="Oranges">Oranges</option>
-          <option value="Peaches">Peaches</option>
-          <option value="Pears">Pears</option>
-        </select>
-      </div>
+          <div className="form-group">
+            <label htmlFor="nativeFruit">Native Fruit</label>
+            <select
+              id="nativeFruit"
+              value={nativeFruit}
+              onChange={(e) => setNativeFruit(e.target.value as NativeFruit)}
+            >
+              <option value="">Select fruit</option>
+              <option value="Apple">Apple</option>
+              <option value="Cherry">Cherry</option>
+              <option value="Orange">Orange</option>
+              <option value="Peach">Peach</option>
+              <option value="Pear">Pear</option>
+            </select>
+          </div>
 
-      <button
-        onClick={saveSettings}
-        style={{
-          padding: "10px 16px",
-          border: "1px solid #ccc",
-          borderRadius: "8px",
-          cursor: "pointer",
-        }}
-      >
-        Save Settings
-      </button>
-
-      {savedMessage && <p style={{ marginTop: "10px" }}>{savedMessage}</p>}
+          <button type="submit" className="primary-button">
+            Save Settings
+          </button>
+        </form>
+      </Card>
     </main>
   );
 }
