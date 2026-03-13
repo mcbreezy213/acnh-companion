@@ -1,27 +1,47 @@
-import type { Villager } from "../types";
+export function formatCritterHours(hours: number[]): string {
+  if (!hours.length) {
+    return "Unavailable";
+  }
 
-export function sortVillagersByPriority(
-  villagers: Villager[],
-  talked: number[],
-  gifted: number[]
-) {
-  return [...villagers].sort((a, b) => {
-    const aNeedsTalk = !talked.includes(a.id);
-    const bNeedsTalk = !talked.includes(b.id);
+  if (hours.length === 24) {
+    return "All day";
+  }
 
-    const aNeedsGift = !gifted.includes(a.id);
-    const bNeedsGift = !gifted.includes(b.id);
+  const sortedHours = [...hours].sort((a, b) => a - b);
 
-    const aPriority =
-      (aNeedsTalk ? 2 : 0) +
-      (aNeedsGift ? 1 : 0) +
-      a.friendship / 100;
+  const ranges: string[] = [];
+  let start = sortedHours[0];
+  let end = sortedHours[0];
 
-    const bPriority =
-      (bNeedsTalk ? 2 : 0) +
-      (bNeedsGift ? 1 : 0) +
-      b.friendship / 100;
+  for (let i = 1; i < sortedHours.length; i += 1) {
+    const current = sortedHours[i];
 
-    return bPriority - aPriority;
-  });
+    if (current === end + 1) {
+      end = current;
+    } else {
+      ranges.push(formatHourRange(start, end));
+      start = current;
+      end = current;
+    }
+  }
+
+  ranges.push(formatHourRange(start, end));
+
+  return ranges.join(", ");
+}
+
+function formatHourRange(start: number, end: number): string {
+  if (start === end) {
+    return formatHour(start);
+  }
+
+  return `${formatHour(start)} - ${formatHour(end + 1)}`;
+}
+
+function formatHour(hour: number): string {
+  const normalizedHour = ((hour % 24) + 24) % 24;
+  const suffix = normalizedHour >= 12 ? "PM" : "AM";
+  const twelveHour = normalizedHour % 12 === 0 ? 12 : normalizedHour % 12;
+
+  return `${twelveHour}${suffix}`;
 }

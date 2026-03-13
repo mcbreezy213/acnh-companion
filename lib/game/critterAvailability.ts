@@ -1,4 +1,5 @@
-import type { Critter, Hemisphere } from "../types";
+import type { Critter } from "@/types/critters";
+import type { Hemisphere } from "@/types/settings";
 
 export function isCritterAvailableNow(
   critter: Critter,

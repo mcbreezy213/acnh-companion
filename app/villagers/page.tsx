@@ -5,26 +5,27 @@ import { useMemo, useState } from "react";
 import Card from "@/components/ui/Card";
 import FriendshipBar from "@/components/domain/villagers/FriendshipBar";
 import { villagers } from "@/data/villagers";
+import { getFriendshipLabel } from "@/lib/game/friendshipLevel";
 import {
   getGiftedVillagers,
   getTalkedVillagers,
   saveGiftedVillagers,
   saveTalkedVillagers,
 } from "@/lib/storage/villagerStorage";
-import { getFriendshipLabel } from "@/lib/game/friendshipLevel";
 
 type VillagerState = {
   id: number;
   friendship: number;
 };
 
-const initialFriendship = villagers.map((villager) => ({
+const initialFriendship: VillagerState[] = villagers.map((villager) => ({
   id: villager.id,
   friendship: 0,
 }));
 
 export default function VillagersPage() {
-  const [friendships, setFriendships] = useState<VillagerState[]>(initialFriendship);
+  const [friendships, setFriendships] =
+    useState<VillagerState[]>(initialFriendship);
 
   const [talked, setTalked] = useState<number[]>(() => {
     try {

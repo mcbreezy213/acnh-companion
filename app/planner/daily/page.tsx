@@ -1,56 +1,95 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { dailyTasks } from "../../data/dailyTasks";
-import { shouldResetDaily } from "../../utils/dailyReset";
+import { useMemo, useState } from "react";
 
-export default function DailyPage() {
-  const [completedTasks, setCompletedTasks] = useState<number[]>([]);
+import Card from "@/components/ui/Card";
+import { dailyTasks } from "@/data/dailyTasks";
+import {
+  getCompletedDailyTasks,
+  saveCompletedDailyTasks,
+} from "@/lib/storage/dailyStorage";
 
-  useEffect(() => {
-    const savedTasks = localStorage.getItem("completedDailyTasks");
-
-    if (savedTasks) {
-      setCompletedTasks(JSON.parse(savedTasks));
+export default function DailyPlannerPage() {
+  const [completedTaskIds, setCompletedTaskIds] = useState<number[]>(() => {
+    try {
+      return getCompletedDailyTasks();
+    } catch {
+      return [];
     }
+  });
 
-    if (shouldResetDaily()) {
-      setCompletedTasks([]);
-      localStorage.setItem("completedDailyTasks", JSON.stringify([]));
-    }
-  }, []);
+  function toggleTask(taskId: number) {
+    const updated = completedTaskIds.includes(taskId)
+      ? completedTaskIds.filter((id) => id !== taskId)
+      : [...completedTaskIds, taskId];
 
-  useEffect(() => {
-    localStorage.setItem("completedDailyTasks", JSON.stringify(completedTasks));
-  }, [completedTasks]);
-
-  function toggleTask(id: number) {
-    setCompletedTasks((prev) =>
-      prev.includes(id) ? prev.filter((taskId) => taskId !== id) : [...prev, id]
-    );
+    setCompletedTaskIds(updated);
+    saveCompletedDailyTasks(updated);
   }
 
+  const completedCount = completedTaskIds.length;
+  const totalTasks = dailyTasks.length;
+
+  const remainingTasks = useMemo(() => {
+    return dailyTasks.filter((task) => !completedTaskIds.includes(task.id));
+  }, [completedTaskIds]);
+
   return (
-    <main style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      <h1>Daily Island Tasks</h1>
+    <main className="page-shell">
+      <h1 className="page-title">Daily Planner</h1>
 
-      {dailyTasks.map((task) => (
-        <div
-          key={task.id}
-          style={{
-            marginBottom: "15px",
-            padding: "15px",
-            border: "1px solid #ccc",
-            borderRadius: "10px",
-          }}
-        >
-          <button onClick={() => toggleTask(task.id)}>
-            {completedTasks.includes(task.id) ? "✓" : "☐"}
-          </button>
+      <div className="grid gap-5">
+        <Card title="Daily Progress">
+          <p>
+            <strong>Completed:</strong> {completedCount} / {totalTasks}
+          </p>
+          <p>
+            <strong>Remaining:</strong> {remainingTasks.length}
+          </p>
+        </Card>
 
-          <span style={{ marginLeft: "10px" }}>{task.name}</span>
-        </div>
-      ))}
+        <Card title="Today's Tasks">
+          {dailyTasks.length > 0 ? (
+            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+              {dailyTasks.map((task) => {
+                const isCompleted = completedTaskIds.includes(task.id);
+
+                return (
+                  <li
+                    key={task.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                      padding: "10px 0",
+                      borderBottom: "1px solid #eee",
+                    }}
+                  >
+                    <span
+                      style={{
+                        textDecoration: isCompleted ? "line-through" : "none",
+                        opacity: isCompleted ? 0.7 : 1,
+                      }}
+                    >
+                      {task.name}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleTask(task.id)}
+                    >
+                      {isCompleted ? "Completed ✓" : "Mark Done"}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p>No daily tasks found.</p>
+          )}
+        </Card>
+      </div>
     </main>
   );
 }
