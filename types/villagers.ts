@@ -4,6 +4,7 @@ export type Villager = {
   personality: string;
   birthday?: string;
   species?: string;
+  image?: string;
 };
 
 export type VillagerProgress = {

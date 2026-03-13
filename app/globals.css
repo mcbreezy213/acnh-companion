@@ -257,9 +257,9 @@ body {
 }
 
 .page-title {
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 .card {
   background: var(--card-bg);
@@ -326,27 +326,31 @@ body {
 
 .tiles {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 20px;
 }
 
 .tile {
   background: white;
-  border-radius: 22px;
-  padding: 20px;
+  border-radius: 24px;
+  padding: 18px 10px;
+
   text-align: center;
   text-decoration: none;
   color: #333;
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  gap: 10px;
+
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
   transition: transform 0.15s ease;
 }
 
 .tile:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
 }
 
 .tile-icon {
@@ -354,6 +358,7 @@ body {
 }
 
 .tile-title {
+  font-size: 13px;
   font-weight: 600;
 }
 body {
@@ -393,4 +398,118 @@ body {
 
 .tile:hover {
   transform: translateY(-4px) scale(1.03);
+}
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.villager-card {
+  background: white;
+  border-radius: 28px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.villager-top {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.villager-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #f7f3e9;
+}
+
+.villager-avatar.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.villager-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.villager-name {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.villager-meta {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.villager-status {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.status-pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #f1efe7;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-pill.done {
+  background: #66c29c;
+  color: white;
+}
+
+.friendship-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.friendship-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.friendship-bar {
+  width: 100%;
+  height: 10px;
+  background: #ece7db;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.friendship-fill {
+  height: 100%;
+  background: #66c29c;
+  border-radius: 999px;
+}
+.villager-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.villager-avatar.placeholder {
+  background: #e8f6ef;
+  color: #66C29C;
+  font-size: 28px;
 }
