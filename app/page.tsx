@@ -70,15 +70,14 @@ export default function HomePage() {
 
   return (
     <Page title="Island Dashboard">
-      <section className="tiles">
-        <Tile title="Villagers" icon="👥" href="/villagers" />
-        <Tile title="Critters" icon="🐟" href="/collections/critters" />
-        <Tile title="Museum" icon="🏛️" href="/collections/critters" />
-        <Tile title="Turnips" icon="💰" href="/planner/turnips" />
-        <Tile title="Flowers" icon="🌸" href="/island" />
-        <Tile title="Planner" icon="📅" href="/planner/daily" />
-      </section>
-
+     <section className="tiles">
+  <Tile title="Villagers" icon="👥" href="/villagers" />
+  <Tile title="Critters" icon="🐟" href="/collections/critters" />
+  <Tile title="Museum" icon="🏛️" href="/collections/critters" />
+  <Tile title="Turnips" icon="💰" href="/planner/turnips" />
+  <Tile title="Flowers" icon="🌸" href="/island" />
+  <Tile title="Planner" icon="📅" href="/planner/daily" />
+</section>
       <Card title="Your Island">
         <p><strong>Player:</strong> {settings.playerName || "Not set"}</p>
         <p><strong>Island:</strong> {settings.islandName || "Not set"}</p>
