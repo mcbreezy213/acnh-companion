@@ -1,13 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useSettings } from "../../context/SettingsContext";
-import { critters } from "../../data/critters";
+import { useMemo, useState } from "react";
+
+import Card from "@/components/ui/Card";
+import { useSettings } from "@/context/SettingsContext";
+import { critters } from "@/data/critters";
 import {
   getAvailableNow,
   getLeavingThisMonth,
   getNewThisMonth,
-} from "../../helpers/critterFilters";
+} from "@/lib/game/critterFilters";
+import {
+  getCritterProgress,
+  saveCritterProgress,
+} from "@/lib/storage/crittersStorage";
+import { formatCritterHours } from "@/lib/game/formatCritterHours";
 
 type CritterTypeFilter = "all" | "fish" | "bug" | "sea";
 
@@ -17,260 +24,157 @@ function getCritterIcon(type: "fish" | "bug" | "sea") {
   return "🦀";
 }
 
-function formatHour(hour: number): string {
-  const suffix = hour >= 12 ? "PM" : "AM";
-  const normalized = hour % 12 === 0 ? 12 : hour % 12;
-  return `${normalized}${suffix}`;
-}
-
-function formatCritterHours(hours: number[]): string {
-  if (hours.length === 24) return "All day";
-  if (hours.length === 0) return "Unknown";
-
-  const sorted = [...hours].sort((a, b) => a - b);
-  const start = sorted[0];
-  const end = sorted[sorted.length - 1];
-
-  return `${formatHour(start)} – ${formatHour(end)}`;
-}
-
-function badgeStyle(background: string) {
-  return {
-    padding: "6px 10px",
-    borderRadius: "999px",
-    background,
-    border: "1px solid var(--border)",
-    fontSize: "0.9rem",
-  } as const;
-}
-
 export default function CrittersPage() {
   const { settings } = useSettings();
 
-  const hemisphere = settings.hemisphere || "Northern";
-  const currentMonth = new Date().getMonth() + 1;
-  const currentHour = new Date().getHours();
-
   const [typeFilter, setTypeFilter] = useState<CritterTypeFilter>("all");
-  const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [search, setSearch] = useState("");
 
-  const [caught, setCaught] = useState<number[]>([]);
-  const [donated, setDonated] = useState<number[]>([]);
-
-  useEffect(() => {
-    const savedCaught = localStorage.getItem("caughtCritters");
-    const savedDonated = localStorage.getItem("donatedCritters");
-
-    if (savedCaught) {
-      try {
-        setCaught(JSON.parse(savedCaught));
-      } catch {
-        localStorage.removeItem("caughtCritters");
-      }
+  const [progress, setProgress] = useState(() => {
+    try {
+      return getCritterProgress();
+    } catch {
+      return { caught: [], donated: [] };
     }
+  });
 
-    if (savedDonated) {
-      try {
-        setDonated(JSON.parse(savedDonated));
-      } catch {
-        localStorage.removeItem("donatedCritters");
-      }
-    }
-  }, []);
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentHour = now.getHours();
 
-  useEffect(() => {
-    localStorage.setItem("caughtCritters", JSON.stringify(caught));
-  }, [caught]);
+  const filteredCritters = useMemo(() => {
+    return critters.filter((critter) => {
+      const matchesType =
+        typeFilter === "all" ? true : critter.type === typeFilter;
 
-  useEffect(() => {
-    localStorage.setItem("donatedCritters", JSON.stringify(donated));
-  }, [donated]);
+      const matchesSearch = critter.name
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+      return matchesType && matchesSearch;
+    });
+  }, [typeFilter, search]);
+
+  const availableNow = useMemo(() => {
+    return getAvailableNow(
+      filteredCritters,
+      settings.hemisphere,
+      currentMonth,
+      currentHour
+    );
+  }, [filteredCritters, settings.hemisphere, currentMonth, currentHour]);
+
+  const newThisMonth = useMemo(() => {
+    return getNewThisMonth(critters, settings.hemisphere, currentMonth);
+  }, [settings.hemisphere, currentMonth]);
+
+  const leavingThisMonth = useMemo(() => {
+    return getLeavingThisMonth(critters, settings.hemisphere, currentMonth);
+  }, [settings.hemisphere, currentMonth]);
 
   function toggleCaught(id: number) {
-    setCaught((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    const next = progress.caught.includes(id)
+      ? progress.caught.filter((value) => value !== id)
+      : [...progress.caught, id];
+
+    const updated = { ...progress, caught: next };
+    setProgress(updated);
+    saveCritterProgress(updated);
   }
 
   function toggleDonated(id: number) {
-    setDonated((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    const next = progress.donated.includes(id)
+      ? progress.donated.filter((value) => value !== id)
+      : [...progress.donated, id];
+
+    const updated = { ...progress, donated: next };
+    setProgress(updated);
+    saveCritterProgress(updated);
   }
 
-  const availableNow = useMemo(
-    () => getAvailableNow(critters, hemisphere, currentMonth, currentHour),
-    [hemisphere, currentMonth, currentHour]
-  );
-
-  const newThisMonth = useMemo(
-    () => getNewThisMonth(critters, hemisphere, currentMonth),
-    [hemisphere, currentMonth]
-  );
-
-  const leavingThisMonth = useMemo(
-    () => getLeavingThisMonth(critters, hemisphere, currentMonth),
-    [hemisphere, currentMonth]
-  );
-
-  const availableNowIds = new Set(availableNow.map((c) => c.id));
-  const newThisMonthIds = new Set(newThisMonth.map((c) => c.id));
-  const leavingThisMonthIds = new Set(leavingThisMonth.map((c) => c.id));
-
-  const filteredCritters = critters.filter((critter) => {
-    const matchesType =
-      typeFilter === "all" ? true : critter.type === typeFilter;
-
-    const matchesSearch = critter.name
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
-    const matchesAvailable = showAvailableOnly
-      ? availableNowIds.has(critter.id)
-      : true;
-
-    return matchesType && matchesSearch && matchesAvailable;
-  });
-
-  const caughtCount = caught.length;
-  const donatedCount = donated.length;
-  const totalCritters = critters.length;
-
   return (
-    <main>
-      <h1>Critters Guide</h1>
+    <main className="page-shell">
+      <h1 className="page-title">Critter Tracker</h1>
 
-      <div
-        className="card"
-        style={{
-          marginBottom: "20px",
-          display: "grid",
-          gap: "14px",
-        }}
-      >
-        <p style={{ margin: 0 }}>
-          <strong>Hemisphere:</strong> {hemisphere}
+      <Card title="Overview">
+        <p>
+          <strong>Available now:</strong> {availableNow.length}
         </p>
-
-        <p style={{ margin: 0 }}>
-          <strong>Caught:</strong> {caughtCount} / {totalCritters}
+        <p>
+          <strong>New this month:</strong> {newThisMonth.length}
         </p>
-
-        <p style={{ margin: 0 }}>
-          <strong>Donated:</strong> {donatedCount} / {totalCritters}
+        <p>
+          <strong>Leaving this month:</strong> {leavingThisMonth.length}
         </p>
+      </Card>
 
-        <input
-          type="text"
-          placeholder="Search critters..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <Card title="Filters">
+        <div className="grid gap-3">
+          <input
+            type="text"
+            placeholder="Search critters..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          <button onClick={() => setTypeFilter("all")}>All</button>
-          <button onClick={() => setTypeFilter("fish")}>🐟 Fish</button>
-          <button onClick={() => setTypeFilter("bug")}>🐞 Bugs</button>
-          <button onClick={() => setTypeFilter("sea")}>🦀 Sea</button>
-          <button onClick={() => setShowAvailableOnly((prev) => !prev)}>
-            {showAvailableOnly ? "Show All" : "Available Now Only"}
-          </button>
+          <select
+            value={typeFilter}
+            onChange={(e) =>
+              setTypeFilter(e.target.value as CritterTypeFilter)
+            }
+          >
+            <option value="all">All</option>
+            <option value="fish">Fish</option>
+            <option value="bug">Bugs</option>
+            <option value="sea">Sea Creatures</option>
+          </select>
         </div>
-      </div>
+      </Card>
 
-      <div style={{ display: "grid", gap: "20px" }}>
-        {filteredCritters.map((critter) => {
-          const isAvailable = availableNowIds.has(critter.id);
-          const isNew = newThisMonthIds.has(critter.id);
-          const isLeaving = leavingThisMonthIds.has(critter.id);
-          const isCaught = caught.includes(critter.id);
-          const isDonated = donated.includes(critter.id);
+      <div className="grid gap-5">
+        {filteredCritters.map((critter) => (
+          <Card
+            key={critter.id}
+            title={`${getCritterIcon(critter.type)} ${critter.name}`}
+          >
+            <p>
+              <strong>Type:</strong> {critter.type}
+            </p>
+            <p>
+              <strong>Price:</strong> {critter.price}
+            </p>
+            <p>
+              <strong>Location:</strong> {critter.location}
+            </p>
+            <p>
+              <strong>Hours:</strong> {formatCritterHours(critter.hours)}
+            </p>
 
-          return (
-            <div
-              key={critter.id}
-              className="card"
-              style={{
-                border: isAvailable
-                  ? "2px solid var(--accent)"
-                  : "1px solid var(--border)",
-                opacity: isDonated ? 0.82 : 1,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: "12px",
-                  alignItems: "flex-start",
-                  flexWrap: "wrap",
-                }}
-              >
-                <div>
-                  <h2 style={{ marginBottom: "8px" }}>
-                    {getCritterIcon(critter.type)} {critter.name}
-                  </h2>
+            {critter.shadowSize ? (
+              <p>
+                <strong>Shadow Size:</strong> {critter.shadowSize}
+              </p>
+            ) : null}
 
-                  <p style={{ margin: "0 0 6px 0", color: "var(--muted)" }}>
-  {critter.type} • {critter.location}
-</p>
+            {critter.speed ? (
+              <p>
+                <strong>Speed:</strong> {critter.speed}
+              </p>
+            ) : null}
 
-{critter.shadowSize && (
-  <p style={{ margin: "0 0 6px 0" }}>
-    <strong>Shadow Size:</strong> {critter.shadowSize}
-  </p>
-)}
+            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+              <button onClick={() => toggleCaught(critter.id)}>
+                {progress.caught.includes(critter.id) ? "Caught ✓" : "Mark Caught"}
+              </button>
 
-{critter.speed && (
-  <p style={{ margin: "0 0 6px 0" }}>
-    <strong>Speed:</strong> {critter.speed}
-  </p>
-)}
-
-<p style={{ margin: "0 0 6px 0" }}>
-  <strong>Price:</strong> {critter.price.toLocaleString()} bells
-</p>
-
-<p style={{ margin: 0 }}>
-  <strong>Time:</strong> {formatCritterHours(critter.hours)}
-</p>
-                </div>
-
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                  {isAvailable && (
-                    <span style={badgeStyle("#e7f5ea")}>Available now</span>
-                  )}
-
-                  {isNew && (
-                    <span style={badgeStyle("#eef4ff")}>New this month</span>
-                  )}
-
-                  {isLeaving && (
-                    <span style={badgeStyle("#fff4e8")}>Leaving soon</span>
-                  )}
-                </div>
-              </div>
-
-              <div
-                style={{
-                  marginTop: "16px",
-                  display: "flex",
-                  gap: "10px",
-                  flexWrap: "wrap",
-                }}
-              >
-                <button onClick={() => toggleCaught(critter.id)}>
-                  {isCaught ? "Caught ✓" : "Mark Caught"}
-                </button>
-
-                <button onClick={() => toggleDonated(critter.id)}>
-                  {isDonated ? "Donated ✓" : "Mark Donated"}
-                </button>
-              </div>
+              <button onClick={() => toggleDonated(critter.id)}>
+                {progress.donated.includes(critter.id)
+                  ? "Donated ✓"
+                  : "Mark Donated"}
+              </button>
             </div>
-          );
-        })}
+          </Card>
+        ))}
       </div>
     </main>
   );

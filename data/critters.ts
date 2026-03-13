@@ -1,4 +1,4 @@
-import type { Critter } from "../types";
+import type { Critter } from "@/types/critters";
 
 export const critters: Critter[] = [
   {

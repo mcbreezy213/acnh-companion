@@ -3,16 +3,12 @@ const STORAGE_KEY = "dailyTasksCompleted";
 export function getCompletedDailyTasks(): number[] {
   const raw = localStorage.getItem(STORAGE_KEY);
 
-  if (!raw) {
-    return [];
-  }
+  if (!raw) return [];
 
   try {
     const parsed = JSON.parse(raw);
 
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
+    if (!Array.isArray(parsed)) return [];
 
     return parsed.filter((item): item is number => typeof item === "number");
   } catch {

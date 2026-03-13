@@ -1,83 +1,59 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSettings } from "../../context/SettingsContext";
-import { villagers } from "../../data/villagers";
-import FriendshipBar from "../../components/FriendshipBar";
+import { useMemo, useState } from "react";
+
+import Card from "@/components/ui/Card";
+import FriendshipBar from "@/components/domain/villagers/FriendshipBar";
+import { villagers } from "@/data/villagers";
 import {
-  getFriendshipLevel,
-  hasPhotoChance,
-} from "../../helpers/friendshipLevel";
-import { sortVillagersByPriority } from "../../helpers/sortVillagersByPriority";
-import { shouldResetDaily } from "../../utils/dailyReset";
-import { resetDailyProgress } from "../../utils/dailyReset";
+  getGiftedVillagers,
+  getTalkedVillagers,
+  saveGiftedVillagers,
+  saveTalkedVillagers,
+} from "@/lib/storage/villagerStorage";
+import { getFriendshipLabel } from "@/lib/game/friendshipLevel";
 
-export default function FriendshipPage() {
-  const { settings } = useSettings();
+type VillagerState = {
+  id: number;
+  friendship: number;
+};
 
-  const [villagersState, setVillagers] = useState(villagers);
-  const [talked, setTalked] = useState<number[]>([]);
-  const [gifted, setGifted] = useState<number[]>([]);
+const initialFriendship = villagers.map((villager) => ({
+  id: villager.id,
+  friendship: 0,
+}));
 
-  useEffect(() => {
-    const savedVillagers = localStorage.getItem("villagerFriendships");
-    const savedTalked = localStorage.getItem("talkedVillagers");
-    const savedGifted = localStorage.getItem("giftedVillagers");
+export default function VillagersPage() {
+  const [friendships, setFriendships] = useState<VillagerState[]>(initialFriendship);
 
-    if (savedVillagers) {
-      try {
-        setVillagers(JSON.parse(savedVillagers));
-      } catch {
-        localStorage.removeItem("villagerFriendships");
-      }
+  const [talked, setTalked] = useState<number[]>(() => {
+    try {
+      return getTalkedVillagers();
+    } catch {
+      return [];
     }
+  });
 
-    if (savedTalked) {
-      try {
-        setTalked(JSON.parse(savedTalked));
-      } catch {
-        localStorage.removeItem("talkedVillagers");
-      }
+  const [gifted, setGifted] = useState<number[]>(() => {
+    try {
+      return getGiftedVillagers();
+    } catch {
+      return [];
     }
-
-    if (savedGifted) {
-      try {
-        setGifted(JSON.parse(savedGifted));
-      } catch {
-        localStorage.removeItem("giftedVillagers");
-      }
-    }
-
-    if (shouldResetDaily()) {
-      setTalked([]);
-      setGifted([]);
-      localStorage.setItem("talkedVillagers", JSON.stringify([]));
-      localStorage.setItem("giftedVillagers", JSON.stringify([]));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("villagerFriendships", JSON.stringify(villagersState));
-  }, [villagersState]);
-
-  useEffect(() => {
-    localStorage.setItem("talkedVillagers", JSON.stringify(talked));
-  }, [talked]);
-
-  useEffect(() => {
-    localStorage.setItem("giftedVillagers", JSON.stringify(gifted));
-  }, [gifted]);
+  });
 
   function talkToVillager(id: number) {
     if (talked.includes(id)) return;
 
-    setTalked((prev) => [...prev, id]);
+    const nextTalked = [...talked, id];
+    setTalked(nextTalked);
+    saveTalkedVillagers(nextTalked);
 
-    setVillagers((prev) =>
-      prev.map((v) =>
-        v.id === id
-          ? { ...v, friendship: Math.min(v.friendship + 1, 100) }
-          : v
+    setFriendships((prev) =>
+      prev.map((villager) =>
+        villager.id === id
+          ? { ...villager, friendship: Math.min(villager.friendship + 1, 100) }
+          : villager
       )
     );
   }
@@ -85,109 +61,65 @@ export default function FriendshipPage() {
   function giftVillager(id: number) {
     if (gifted.includes(id)) return;
 
-    setGifted((prev) => [...prev, id]);
+    const nextGifted = [...gifted, id];
+    setGifted(nextGifted);
+    saveGiftedVillagers(nextGifted);
 
-    setVillagers((prev) =>
-      prev.map((v) =>
-        v.id === id
-          ? { ...v, friendship: Math.min(v.friendship + 3, 100) }
-          : v
+    setFriendships((prev) =>
+      prev.map((villager) =>
+        villager.id === id
+          ? { ...villager, friendship: Math.min(villager.friendship + 3, 100) }
+          : villager
       )
     );
   }
 
-  const sortedVillagers = sortVillagersByPriority(
-    villagersState,
-    talked,
-    gifted
-  );
+  const villagerCards = useMemo(() => {
+    return villagers.map((villager) => {
+      const friendship = friendships.find((item) => item.id === villager.id);
+
+      return {
+        ...villager,
+        friendship: friendship?.friendship ?? 0,
+      };
+    });
+  }, [friendships]);
 
   return (
-    <main style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      <h1 style={{ fontSize: "2.4rem", marginBottom: "20px" }}>
-        Villager Friendship Tracker
-      </h1>
+    <main className="page-shell">
+      <h1 className="page-title">Villager Friendship Tracker</h1>
 
-<button
-  onClick={() => {
-    resetDailyProgress();
-    window.location.reload();
-  }}
-  style={{
-    marginBottom: "20px",
-    padding: "8px 14px",
-    borderRadius: "10px",
-    background: "#c97",
-    color: "white",
-    border: "none",
-    cursor: "pointer"
-  }}
->
-  Reset Daily Progress
-</button>
-      <div style={{ display: "grid", gap: "20px" }}>
-        {sortedVillagers.map((v) => (
-          <div
-  key={v.id}
-  style={{
-    border: "1px solid var(--card-border)",
-    borderRadius: "20px",
-    background: "var(--card)",
-    padding: "20px",
-    boxShadow:
-      !talked.includes(v.id) || !gifted.includes(v.id)
-        ? "0 0 12px rgba(140, 200, 120, 0.6)"
-        : "var(--shadow)",
-    display: "flex",
-    gap: "20px",
-    alignItems: "flex-start",
-    opacity: talked.includes(v.id) && gifted.includes(v.id) ? 0.75 : 1,
-  }}
->
-            <img
-              src={v.portrait}
-              alt={v.name}
-              style={{
-                width: "110px",
-                height: "110px",
-                objectFit: "cover",
-                borderRadius: "16px",
-              }}
-            />
+      <div className="grid gap-5">
+        {villagerCards.map((villager) => (
+          <Card key={villager.id} title={villager.name}>
+            <p>
+              <strong>Personality:</strong> {villager.personality}
+            </p>
+            <p>
+              <strong>Species:</strong> {villager.species || "Unknown"}
+            </p>
+            <p>
+              <strong>Birthday:</strong> {villager.birthday || "Unknown"}
+            </p>
+            <p>
+              <strong>Friendship:</strong> {villager.friendship}
+            </p>
+            <p>
+              <strong>Level:</strong> {getFriendshipLabel(villager.friendship)}
+            </p>
 
-            <div style={{ flex: 1 }}>
-              <h2 style={{ marginTop: 0 }}>{v.name}</h2>
+            <FriendshipBar points={villager.friendship} max={100} />
 
-              <p style={{ color: "var(--muted)" }}>
-                {v.personality} • {v.species}
-              </p>
+            <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
+              <button onClick={() => talkToVillager(villager.id)}>
+                {talked.includes(villager.id) ? "Talked ✓" : "Talk Today"}
+              </button>
 
-              <p>Birthday: {v.birthday}</p>
-
-              <div style={{ fontWeight: 600 }}>
-                Friendship: {v.friendship}
-              </div>
-
-              <FriendshipBar points={v.friendship} max={100} />
-
-              <p>Level: {getFriendshipLevel(v.friendship)}</p>
-
-              <p>
-                Photo Chance:{" "}
-                {hasPhotoChance(v.friendship) ? "Possible ✓" : "Not yet"}
-              </p>
-
-              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                <button onClick={() => talkToVillager(v.id)}>
-                  {talked.includes(v.id) ? "Talked ✓" : "Talk Today"}
-                </button>
-
-                <button onClick={() => giftVillager(v.id)}>
-                  {gifted.includes(v.id) ? "Gifted ✓" : "Gift Today"}
-                </button>
-              </div>
+              <button onClick={() => giftVillager(villager.id)}>
+                {gifted.includes(villager.id) ? "Gifted ✓" : "Gift Today"}
+              </button>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </main>

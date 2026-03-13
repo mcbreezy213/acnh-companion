@@ -1,38 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 
 import Card from "@/components/ui/Card";
 import { useSettings } from "@/context/SettingsContext";
-
 import { critters } from "@/data/critters";
 import { dailyTasks } from "@/data/dailyTasks";
 import { villagers } from "@/data/villagers";
-
 import { getAvailableNow } from "@/lib/game/critterFilters";
-
+import { getCompletedDailyTasks } from "@/lib/storage/dailyStorage";
 import {
-  getCompletedDailyTasks,
-  saveCompletedDailyTasks,
-} from "@/lib/storage/dailyStorage";
-
-import {
-  getTalkedVillagers,
   getGiftedVillagers,
-  saveTalkedVillagers,
-  saveGiftedVillagers,
+  getTalkedVillagers,
 } from "@/lib/storage/villagerStorage";
 
 export default function HomePage() {
-  const router = useRouter();
   const { settings } = useSettings();
 
-  /* -------------------------------
-     LOAD LOCAL STORAGE SAFELY
-  -------------------------------- */
-
-  const [talkedVillagers, setTalkedVillagers] = useState<number[]>(() => {
+  const [talkedVillagers] = useState<number[]>(() => {
     try {
       return getTalkedVillagers();
     } catch {
@@ -40,7 +25,7 @@ export default function HomePage() {
     }
   });
 
-  const [giftedVillagers, setGiftedVillagers] = useState<number[]>(() => {
+  const [giftedVillagers] = useState<number[]>(() => {
     try {
       return getGiftedVillagers();
     } catch {
@@ -48,7 +33,7 @@ export default function HomePage() {
     }
   });
 
-  const [completedTaskIds, setCompletedTaskIds] = useState<number[]>(() => {
+  const [completedTaskIds] = useState<number[]>(() => {
     try {
       return getCompletedDailyTasks();
     } catch {
@@ -56,42 +41,9 @@ export default function HomePage() {
     }
   });
 
-  /* -------------------------------
-     SAVE WHEN STATE CHANGES
-  -------------------------------- */
-
-  function toggleTask(taskId: number) {
-    const updated = completedTaskIds.includes(taskId)
-      ? completedTaskIds.filter((id) => id !== taskId)
-      : [...completedTaskIds, taskId];
-
-    setCompletedTaskIds(updated);
-    saveCompletedDailyTasks(updated);
-  }
-
-  function markTalked(villagerId: number) {
-    const updated = [...talkedVillagers, villagerId];
-    setTalkedVillagers(updated);
-    saveTalkedVillagers(updated);
-  }
-
-  function markGifted(villagerId: number) {
-    const updated = [...giftedVillagers, villagerId];
-    setGiftedVillagers(updated);
-    saveGiftedVillagers(updated);
-  }
-
-  /* -------------------------------
-     TIME DATA
-  -------------------------------- */
-
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentHour = now.getHours();
-
-  /* -------------------------------
-     CRITTERS AVAILABLE
-  -------------------------------- */
 
   const availableCritters = useMemo(() => {
     return getAvailableNow(
@@ -102,10 +54,6 @@ export default function HomePage() {
     );
   }, [settings.hemisphere, currentMonth, currentHour]);
 
-  /* -------------------------------
-     VILLAGERS NEEDING ATTENTION
-  -------------------------------- */
-
   const villagersNeedingAttention = useMemo(() => {
     return villagers.filter(
       (villager) =>
@@ -114,31 +62,28 @@ export default function HomePage() {
     );
   }, [talkedVillagers, giftedVillagers]);
 
-  /* -------------------------------
-     DAILY TASKS
-  -------------------------------- */
-
   const remainingTasks = useMemo(() => {
-    return dailyTasks.filter(
-      (task) => !completedTaskIds.includes(task.id)
-    );
+    return dailyTasks.filter((task) => !completedTaskIds.includes(task.id));
   }, [completedTaskIds]);
-
-  /* -------------------------------
-     PAGE UI
-  -------------------------------- */
 
   return (
     <main className="page-shell">
       <h1 className="page-title">Island Dashboard</h1>
 
       <div className="grid gap-5">
-
         <Card title="Your Island">
-          <p><strong>Player:</strong> {settings.playerName || "Not set"}</p>
-          <p><strong>Island:</strong> {settings.islandName || "Not set"}</p>
-          <p><strong>Hemisphere:</strong> {settings.hemisphere}</p>
-          <p><strong>Native Fruit:</strong> {settings.nativeFruit || "Not set"}</p>
+          <p>
+            <strong>Player:</strong> {settings.playerName || "Not set"}
+          </p>
+          <p>
+            <strong>Island:</strong> {settings.islandName || "Not set"}
+          </p>
+          <p>
+            <strong>Hemisphere:</strong> {settings.hemisphere}
+          </p>
+          <p>
+            <strong>Native Fruit:</strong> {settings.nativeFruit || "Not set"}
+          </p>
         </Card>
 
         <Card title="Island Overview">
@@ -146,15 +91,11 @@ export default function HomePage() {
             <strong>Villagers needing attention:</strong>{" "}
             {villagersNeedingAttention.length}
           </p>
-
           <p>
-            <strong>Daily tasks remaining:</strong>{" "}
-            {remainingTasks.length}
+            <strong>Daily tasks remaining:</strong> {remainingTasks.length}
           </p>
-
           <p>
-            <strong>Critters available now:</strong>{" "}
-            {availableCritters.length}
+            <strong>Critters available now:</strong> {availableCritters.length}
           </p>
         </Card>
 
@@ -195,7 +136,6 @@ export default function HomePage() {
             <p>No critters available right now.</p>
           )}
         </Card>
-
       </div>
     </main>
   );

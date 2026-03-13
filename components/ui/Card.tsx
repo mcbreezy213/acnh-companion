@@ -1,20 +1,17 @@
-import type { ReactNode } from "react";
-
 type CardProps = {
-  title?: string;
-  children: ReactNode;
-  className?: string;
-};
+  title?: string
+  children: React.ReactNode
+}
 
-export default function Card({
-  title,
-  children,
-  className = "",
-}: CardProps) {
+export default function Card({ title, children }: CardProps) {
   return (
-    <section className={`card ${className}`}>
-      {title && <h2 className="card-title">{title}</h2>}
-      <div className="card-content">{children}</div>
-    </section>
-  );
+    <div className="rounded-xl border p-4 shadow-sm bg-white">
+      {title && (
+        <h2 className="text-lg font-semibold mb-2">
+          {title}
+        </h2>
+      )}
+      {children}
+    </div>
+  )
 }
