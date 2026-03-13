@@ -3,9 +3,9 @@ export default function Button({
   onClick,
   type = "button",
 }: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  type?: "button" | "submit";
+  children: React.ReactNode
+  onClick?: () => void
+  type?: "button" | "submit"
 }) {
   return (
     <button className="btn" onClick={onClick} type={type}>
