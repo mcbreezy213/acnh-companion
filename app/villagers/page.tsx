@@ -2,10 +2,9 @@
 
 import { useMemo, useState } from "react";
 
-import Card from "@/components/ui/Card";
-import FriendshipBar from "@/components/domain/villagers/FriendshipBar";
+import Page from "@/components/layout/Page";
+import VillagerCard from "@/components/domain/villagers/VillagerCard";
 import { villagers } from "@/data/villagers";
-import { getFriendshipLabel } from "@/lib/game/friendshipLevel";
 import {
   getGiftedVillagers,
   getTalkedVillagers,
@@ -13,21 +12,21 @@ import {
   saveTalkedVillagers,
 } from "@/lib/storage/villagerStorage";
 
-type VillagerState = {
+type VillagerFriendshipState = {
   id: number;
   friendship: number;
 };
 
-const initialFriendship: VillagerState[] = villagers.map((villager) => ({
-  id: villager.id,
-  friendship: 0,
-}));
-
 export default function VillagersPage() {
-  const [friendships, setFriendships] =
-    useState<VillagerState[]>(initialFriendship);
+  const [friendships, setFriendships] = useState<VillagerFriendshipState[]>(
+    () =>
+      villagers.map((villager) => ({
+        id: villager.id,
+        friendship: 0,
+      }))
+  );
 
-  const [talked, setTalked] = useState<number[]>(() => {
+  const [talkedVillagers, setTalkedVillagers] = useState<number[]>(() => {
     try {
       return getTalkedVillagers();
     } catch {
@@ -35,7 +34,7 @@ export default function VillagersPage() {
     }
   });
 
-  const [gifted, setGifted] = useState<number[]>(() => {
+  const [giftedVillagers, setGiftedVillagers] = useState<number[]>(() => {
     try {
       return getGiftedVillagers();
     } catch {
@@ -43,86 +42,99 @@ export default function VillagersPage() {
     }
   });
 
-  function talkToVillager(id: number) {
-    if (talked.includes(id)) return;
+  function handleTalk(villagerId: number) {
+    if (talkedVillagers.includes(villagerId)) return;
 
-    const nextTalked = [...talked, id];
-    setTalked(nextTalked);
-    saveTalkedVillagers(nextTalked);
+    const updatedTalked = [...talkedVillagers, villagerId];
+    setTalkedVillagers(updatedTalked);
+    saveTalkedVillagers(updatedTalked);
 
     setFriendships((prev) =>
-      prev.map((villager) =>
-        villager.id === id
-          ? { ...villager, friendship: Math.min(villager.friendship + 1, 100) }
-          : villager
+      prev.map((entry) =>
+        entry.id === villagerId
+          ? { ...entry, friendship: Math.min(entry.friendship + 1, 100) }
+          : entry
       )
     );
   }
 
-  function giftVillager(id: number) {
-    if (gifted.includes(id)) return;
+  function handleGift(villagerId: number) {
+    if (giftedVillagers.includes(villagerId)) return;
 
-    const nextGifted = [...gifted, id];
-    setGifted(nextGifted);
-    saveGiftedVillagers(nextGifted);
+    const updatedGifted = [...giftedVillagers, villagerId];
+    setGiftedVillagers(updatedGifted);
+    saveGiftedVillagers(updatedGifted);
 
     setFriendships((prev) =>
-      prev.map((villager) =>
-        villager.id === id
-          ? { ...villager, friendship: Math.min(villager.friendship + 3, 100) }
-          : villager
+      prev.map((entry) =>
+        entry.id === villagerId
+          ? { ...entry, friendship: Math.min(entry.friendship + 3, 100) }
+          : entry
       )
     );
   }
 
   const villagerCards = useMemo(() => {
     return villagers.map((villager) => {
-      const friendship = friendships.find((item) => item.id === villager.id);
+      const friendshipEntry = friendships.find(
+        (entry) => entry.id === villager.id
+      );
 
       return {
         ...villager,
-        friendship: friendship?.friendship ?? 0,
+        friendship: friendshipEntry?.friendship ?? 0,
+        talked: talkedVillagers.includes(villager.id),
+        gifted: giftedVillagers.includes(villager.id),
       };
     });
-  }, [friendships]);
+  }, [friendships, talkedVillagers, giftedVillagers]);
 
   return (
-    <main className="page-shell">
-      <h1 className="page-title">Villager Friendship Tracker</h1>
-
-      <div className="grid gap-5">
+    <Page title="Villagers">
+      <div className="villager-grid">
         {villagerCards.map((villager) => (
-          <Card key={villager.id} title={villager.name}>
-            <p>
-              <strong>Personality:</strong> {villager.personality}
-            </p>
-            <p>
-              <strong>Species:</strong> {villager.species || "Unknown"}
-            </p>
-            <p>
-              <strong>Birthday:</strong> {villager.birthday || "Unknown"}
-            </p>
-            <p>
-              <strong>Friendship:</strong> {villager.friendship}
-            </p>
-            <p>
-              <strong>Level:</strong> {getFriendshipLabel(villager.friendship)}
-            </p>
+          <div key={villager.id}>
+            <VillagerCard
+              name={villager.name}
+              personality={villager.personality}
+              birthday={villager.birthday}
+              species={villager.species}
+              image={villager.image}
+              talked={villager.talked}
+              gifted={villager.gifted}
+              friendship={villager.friendship}
+            />
 
-            <FriendshipBar points={villager.friendship} max={100} />
-
-            <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
-              <button onClick={() => talkToVillager(villager.id)}>
-                {talked.includes(villager.id) ? "Talked ✓" : "Talk Today"}
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                marginTop: "10px",
+                justifyContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <button
+                type="button"
+                className="btn"
+                onClick={() => handleTalk(villager.id)}
+                disabled={villager.talked}
+              >
+                {villager.talked ? "Talked ✓" : "Talk Today"}
               </button>
 
-              <button onClick={() => giftVillager(villager.id)}>
-                {gifted.includes(villager.id) ? "Gifted ✓" : "Gift Today"}
+              <button
+                type="button"
+                className="btn"
+                onClick={() => handleGift(villager.id)}
+                disabled={villager.gifted}
+              >
+                {villager.gifted ? "Gifted ✓" : "Gift Today"}
               </button>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
-    </main>
+    </Page>
   );
 }

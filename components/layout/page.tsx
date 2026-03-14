@@ -7,7 +7,7 @@ export default function Page({
 }) {
   return (
     <main className="page">
-      {title && <h1 className="page-title">{title}</h1>}
+      {title ? <h1 className="page-title">{title}</h1> : null}
       <div className="page-content">{children}</div>
     </main>
   );

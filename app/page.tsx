@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import Page from "@/components/layout/page";
+import Page from "@/components/layout/Page";
 import Tile from "@/components/ui/Tile";
 import Card from "@/components/ui/Card";
 import { useSettings } from "@/context/SettingsContext";

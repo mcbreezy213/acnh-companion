@@ -513,3 +513,28 @@ body {
   color: #66C29C;
   font-size: 28px;
 }
+.villager-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+.villager-card {
+  text-align: center;
+  padding: 20px;
+}
+
+.villager-name {
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.villager-personality {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.villager-birthday {
+  font-size: 13px;
+  opacity: 0.7;
+}
