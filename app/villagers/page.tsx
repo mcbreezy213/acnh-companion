@@ -2,15 +2,15 @@
 
 import { useMemo, useState } from "react";
 
-import Page from "@/components/layout/Page";
-import VillagerCard from "@/components/domain/villagers/VillagerCard";
-import { villagers } from "@/data/villagers";
+import Page from "../../components/layout/Page";
+import VillagerCard from "../../components/domain/villagers/VillagerCard";
+import { villagers } from "../../data/villagers";
 import {
   getGiftedVillagers,
   getTalkedVillagers,
   saveGiftedVillagers,
   saveTalkedVillagers,
-} from "@/lib/storage/villagerStorage";
+} from "../../lib/storage/villagerStorage";
 
 type VillagerFriendshipState = {
   id: number;

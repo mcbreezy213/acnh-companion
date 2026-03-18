@@ -2,19 +2,18 @@
 
 import { useMemo, useState } from "react";
 
-import Page from "@/components/layout/Page";
-import Tile from "@/components/ui/Tile";
-import Card from "@/components/ui/Card";
-import { useSettings } from "@/context/SettingsContext";
-import { critters } from "@/data/critters";
-import { dailyTasks } from "@/data/dailyTasks";
-import { villagers } from "@/data/villagers";
-import { getAvailableNow } from "@/lib/game/critterFilters";
-import { getCompletedDailyTasks } from "@/lib/storage/dailyStorage";
+import Page from "../components/layout/Page";
+import Tile from "../components/ui/Tile";
+import Card from "../components/ui/Card";
+import { useSettings } from "../context/SettingsContext";
+import { critters } from "../data/critters";
+import { dailyTasks } from "../data/dailyTasks";
+import { villagers } from "../data/villagers";
+import { getAvailableNow } from "../lib/game/critterFilters";
 import {
-  getGiftedVillagers,
   getTalkedVillagers,
-} from "@/lib/storage/villagerStorage";
+  getGiftedVillagers,
+  } from "../lib/storage/villagerStorage";
 
 export default function HomePage() {
   const { settings } = useSettings();
@@ -35,15 +34,7 @@ export default function HomePage() {
     }
   });
 
-  const [completedTaskIds] = useState<number[]>(() => {
-    try {
-      return getCompletedDailyTasks();
-    } catch {
-      return [];
-    }
-  });
-
-  const now = new Date();
+    const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentHour = now.getHours();
 
@@ -64,9 +55,7 @@ export default function HomePage() {
     );
   }, [talkedVillagers, giftedVillagers]);
 
-  const remainingTasks = useMemo(() => {
-    return dailyTasks.filter((task) => !completedTaskIds.includes(task.id));
-  }, [completedTaskIds]);
+  const remainingTasks = dailyTasks;
 
   return (
     <Page title="Island Dashboard">
